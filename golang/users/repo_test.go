@@ -129,3 +129,5 @@ func TestBulkCreate(t *testing.T) {
 	// this should fail though
 	assert.Equal(t, err, KeyAlreadyExist)
 }
+
+// TODO: test validation of each parameter

@@ -2,10 +2,29 @@ package users
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"mime/multipart"
+	"regexp"
 	"strconv"
 )
+
+// TODO: to refactor out
+// CSV configs
+type CsvConfig struct {
+	ColsPerRow        int
+	CommentIdentifier string
+}
+
+var csvConfig = CsvConfig{
+	ColsPerRow:        4,
+	CommentIdentifier: "#",
+}
+
+func testForComment(value string) bool {
+	re := regexp.MustCompile(fmt.Sprintf("^%s", csvConfig.CommentIdentifier))
+	return re.MatchString(value)
+}
 
 // use to map the columns to the User struct
 func marshalFromRecord(r []string) (*User, error) {
@@ -37,8 +56,13 @@ func handleCSV(file multipart.File, repo IRepo) error {
 				break
 			}
 
-			// Check if length is as expected
-			if len(record) != 4 {
+			// abort if row is a commented row
+			if testForComment(record[0]) {
+				continue
+			}
+
+			// check if length is as expected
+			if len(record) != csvConfig.ColsPerRow {
 				return InvalidCsvFormat
 			}
 
