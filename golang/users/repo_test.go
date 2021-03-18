@@ -127,7 +127,7 @@ func TestBulkCreate(t *testing.T) {
 	assert.Equal(t, user.Name, "ab_updated", "user with id 1, should be updated")
 	assert.Equal(t, getTotalUsers(testEnv.Db), 3, "total users should be 3")
 	// this should fail though
-	assert.Equal(t, err, KeyAlreadyExist)
+	assert.Equal(t, err, ErrKeyAlreadyExist)
 }
 
 // TODO: test validation of each parameter

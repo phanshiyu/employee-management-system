@@ -53,7 +53,7 @@ func (r *repo) FindByID(id string) (*User, error) {
 	err := r.findByID.Get(u, id)
 
 	if err != nil {
-		return nil, UserDoesNotExist
+		return nil, ErrUserDoesNotExist
 	}
 
 	return u, nil
@@ -117,7 +117,7 @@ func normalizeErr(err error) error {
 	case *pq.Error:
 		switch assertedErr.Code {
 		case "23505":
-			return KeyAlreadyExist
+			return ErrKeyAlreadyExist
 		default:
 			return err
 		}

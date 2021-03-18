@@ -10,9 +10,10 @@ func newError(msg string) error {
 }
 
 var (
-	ContentEncodingNotSupported = newError("content encoding is not supported")
+	ErrContentEncodingNotSupported = newError("content encoding is not supported")
 
-	UserDoesNotExist = newError("user with given ID does not exist")
-	InvalidCsvFormat = newError("invalid csv format")
-	KeyAlreadyExist  = newError("key already exists")
+	ErrUserDoesNotExist = newError("user with given ID does not exist")
+	ErrInvalidCsvFormat = newError("invalid csv format")
+	ErrKeyAlreadyExist  = newError("key already exists")
+	ErrEmptyCsvFile     = newError("csv cannot be empty")
 )

@@ -47,15 +47,20 @@ func marshalFromRecord(r []string) (*User, error) {
 // multipart file handlers, eg CSV
 func handleCSV(file multipart.File, repo IRepo) error {
 	r := csv.NewReader(file)
+	defer file.Close()
 
 	// all this happens in a transaction
+	var lineCount = 0
 	if err := repo.BulkCreate(func(createUser CreateUserFunc) error {
 		for {
 			record, err := r.Read()
 			if err == io.EOF {
+				if lineCount == 0 {
+					return ErrEmptyCsvFile
+				}
 				break
 			}
-
+			lineCount++
 			// abort if row is a commented row
 			if testForComment(record[0]) {
 				continue
@@ -63,7 +68,7 @@ func handleCSV(file multipart.File, repo IRepo) error {
 
 			// check if length is as expected
 			if len(record) != csvConfig.ColsPerRow {
-				return InvalidCsvFormat
+				return ErrInvalidCsvFormat
 			}
 
 			u, err := marshalFromRecord(record)

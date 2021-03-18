@@ -7,7 +7,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type GetParams struct {
+	MinSalary int    `form:"minSalary"`
+	MaxSalary int    `form:"maxSalary"`
+	Offset    int    `form:"offset"`
+	Limit     int    `form:"limit"`
+	Sort      string `form:"sort"`
+}
+
 // gin http request handlers resides here
+func getHandler(repo IRepo) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var getParams GetParams
+		if err := c.ShouldBindQuery(&getParams); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		c.String(http.StatusOK, getParams.Sort)
+	}
+}
+
 func uploadHandler(repo IRepo) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
@@ -31,7 +51,7 @@ func uploadHandler(repo IRepo) gin.HandlerFunc {
 				return
 			}
 		} else {
-			c.AbortWithError(http.StatusBadRequest, ContentEncodingNotSupported)
+			c.AbortWithError(http.StatusBadRequest, ErrContentEncodingNotSupported)
 			return
 		}
 	}
