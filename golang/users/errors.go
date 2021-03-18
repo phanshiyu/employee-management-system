@@ -11,4 +11,8 @@ func newError(msg string) error {
 
 var (
 	ContentEncodingNotSupported = newError("content encoding is not supported")
+
+	UserDoesNotExist = newError("user with given ID does not exist")
+
+	InvalidCsvFormat = newError("invalid csv format")
 )
