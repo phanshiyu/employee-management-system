@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 // repository and data access restrictions reside here
@@ -76,16 +77,21 @@ func (r *repo) BulkCreate(fn func(CreateUserFunc) error) error {
 		return err
 	}
 
-	// runs user's code
-	if err := fn(func(u *User) error {
+	// fnErr is the err returned from the user's code, this will also trigger a rollback
+	if fnErr := fn(func(u *User) error {
 		log.Println(u.ID)
 		//validate user data
-		if _, err := txStmt.Exec(u); err != nil {
+		if _, txErr := txStmt.Exec(u); txErr != nil {
+			err = normalizeErr(txErr)
 			return err
 		}
 
 		return nil
-	}); err != nil {
+	}); fnErr != nil {
+		err = fnErr
+	}
+
+	if err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -99,4 +105,18 @@ func (r *repo) Update(u *User) error {
 
 func (r *repo) DeleteByID(id string) error {
 	panic("Not implemented")
+}
+
+func normalizeErr(err error) error {
+	switch assertedErr := err.(type) {
+	case *pq.Error:
+		switch assertedErr.Code {
+		case "23505":
+			return KeyAlreadyExist
+		default:
+			return err
+		}
+	default:
+		return err
+	}
 }

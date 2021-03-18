@@ -13,6 +13,6 @@ var (
 	ContentEncodingNotSupported = newError("content encoding is not supported")
 
 	UserDoesNotExist = newError("user with given ID does not exist")
-
 	InvalidCsvFormat = newError("invalid csv format")
+	KeyAlreadyExist  = newError("key already exists")
 )
