@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  golang:
+    build: 
+      context: golang
+    volumes:
+      - ./golang:/golang-server
+    ports:
+      - "5000:5000"
+    env_file: .env.dev
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    restart: always
+    env_file: .env.dev
+    volumes:
+      - ./postgres/migrations:/docker-entrypoint-initdb.d/
