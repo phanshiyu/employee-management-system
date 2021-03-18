@@ -3,14 +3,15 @@ package db
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+
+	"github.com/phanshiyu/employee-salary-management/golang/config"
 )
 
-func New() (database *sqlx.DB, err error) {
-	str := buildConnectionString()
+func New(dbConfig config.DatabaseConfig) (database *sqlx.DB, err error) {
+	str := buildConnectionString(dbConfig)
 
 	database, err = sqlx.Open("postgres", str)
 	if err != nil {
@@ -25,15 +26,15 @@ func New() (database *sqlx.DB, err error) {
 	return
 }
 
-func buildConnectionString() string {
-	user := os.Getenv("POSTGRES_USER")
-	pass := os.Getenv("POSTGRES_PASSWORD")
+func buildConnectionString(dbConfig config.DatabaseConfig) string {
+	user := dbConfig.User
+	pass := dbConfig.Pass
 	if user == "" || pass == "" {
 		log.Fatalln("You must include POSTGRES_USER and POSTGRES_PASSWORD environment variables")
 	}
-	host := os.Getenv("POSTGRES_HOST")
-	port := os.Getenv("POSTGRES_PORT")
-	dbname := os.Getenv("POSTGRES_DB")
+	host := dbConfig.Host
+	port := dbConfig.Port
+	dbname := dbConfig.DbName
 	if host == "" || port == "" || dbname == "" {
 		log.Fatalln("You must include POSTGRES_HOST, POSTGRES_PORT, and POSTGRES_DB environment variables")
 	}
