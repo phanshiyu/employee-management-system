@@ -47,8 +47,6 @@ func handleCSV(file multipart.File, repo IRepo) error {
 				return err
 			}
 
-			// TODO: validate user here
-
 			// handle inserting of user
 			if err := createUser(u); err != nil {
 				return err

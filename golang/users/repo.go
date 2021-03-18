@@ -79,6 +79,11 @@ func (r *repo) BulkCreate(fn func(CreateUserFunc) error) error {
 
 	// fnErr is the err returned from the user's code, this will also trigger a rollback
 	if fnErr := fn(func(u *User) error {
+		if usErr := ValidateUserStruct(u); usErr != nil {
+			err = usErr
+			return err
+		}
+
 		log.Println(u.ID)
 		//validate user data
 		if _, txErr := txStmt.Exec(u); txErr != nil {
