@@ -1,15 +1,25 @@
 package users
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
+var ValidSortKeys = map[string]bool{
+	"id":     true,
+	"login":  true,
+	"name":   true,
+	"salary": true,
+}
+
 // repository and data access restrictions reside here
 type IRepo interface {
 	FindByID(id string) (*User, error)
+	Find(params *FindOptions) (*FindResults, error)
 	BulkCreate(fn func(CreateUserFunc) error) error
 	Create(u *User) error
 	Update(u *User) error
@@ -46,6 +56,91 @@ func NewRepo(db *sqlx.DB) (*repo, error) {
 
 func (r *repo) Transact(fn func() error) error {
 	panic("Not implemented")
+}
+
+type FindOptions struct {
+	MinSalary  *int
+	MaxSalary  *int
+	Offset     int
+	Limit      int
+	SortKey    string
+	SortIsDesc bool
+}
+
+type FindResults struct {
+	Items      []User `json:"items"`
+	TotalCount int    `json:"total"`
+	Limit      int    `json:"limit"`
+	Offset     int    `json:"offset"`
+}
+
+func (r *repo) Find(options *FindOptions) (*FindResults, error) {
+	// set defaults
+	sortKey := "id"
+	sortDirection := ""
+	limit := 30
+	offset := 0
+
+	if options.Offset >= 0 {
+		offset = options.Offset
+	}
+
+	if options.Limit >= 0 {
+		limit = options.Limit
+	}
+
+	// check for sort key
+	if ValidSortKeys[options.SortKey] {
+		sortKey = options.SortKey
+	}
+
+	if options.SortIsDesc {
+		sortDirection = "DESC"
+	}
+
+	users := []User{}
+
+	// build query
+	sb := []string{}
+
+	// check for min, max salary
+	if options.MinSalary != nil || options.MaxSalary != nil {
+		sb = append(sb, "WHERE")
+		whereSb := []string{}
+		if options.MinSalary != nil {
+			whereSb = append(whereSb, fmt.Sprintf("salary >= %d", *options.MinSalary))
+		}
+
+		if options.MaxSalary != nil {
+			whereSb = append(whereSb, fmt.Sprintf("salary <= %d", *options.MaxSalary))
+		}
+
+		sb = append(sb, strings.Join(whereSb, " AND "))
+	}
+
+	// get count of all rows base on current query
+	var totalCount int
+	r.db.Get(&totalCount, "SELECT COUNT(*) FROM users "+strings.Join(sb, " "))
+
+	sb = append(sb, fmt.Sprintf("ORDER BY %s %s", sortKey, sortDirection))
+	res := &FindResults{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	sb = append(sb, fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset))
+
+	// build the query
+	query := strings.Join(sb, " ")
+
+	if err := r.db.Select(&users, "SELECT * FROM users "+query); err != nil {
+		return nil, err
+	}
+
+	res.TotalCount = totalCount
+	res.Items = users
+
+	return res, nil
 }
 
 func (r *repo) FindByID(id string) (*User, error) {

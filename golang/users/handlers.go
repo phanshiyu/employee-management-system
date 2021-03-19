@@ -8,7 +8,7 @@ import (
 )
 
 type GetParams struct {
-	MinSalary int    `form:"minSalary"`
+	MinSalary int    `form:"minSalary, "`
 	MaxSalary int    `form:"maxSalary"`
 	Offset    int    `form:"offset"`
 	Limit     int    `form:"limit"`
@@ -18,13 +18,48 @@ type GetParams struct {
 // gin http request handlers resides here
 func getHandler(repo IRepo) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var getParams GetParams
-		if err := c.ShouldBindQuery(&getParams); err != nil {
+		params := GetParams{
+			MinSalary: -1,
+			MaxSalary: -1,
+			Offset:    0,
+			Limit:     30,
+		}
+
+		if err := c.ShouldBindQuery(&params); err != nil {
+			c.AbortWithError(http.StatusBadRequest, ErrInvalidQueryParams)
+			return
+		}
+
+		opts := &FindOptions{
+			Limit:  params.Limit,
+			Offset: params.Offset,
+		}
+
+		if params.MinSalary > -1 {
+			opts.MinSalary = &params.MinSalary
+		}
+		if params.MaxSalary > -1 {
+			opts.MaxSalary = &params.MaxSalary
+		}
+
+		if len(params.Sort) > 0 {
+			// extract sort direction
+			if params.Sort[0] == '-' {
+				opts.SortIsDesc = true
+			}
+
+			// extract the sort key
+			opts.SortKey = params.Sort[1:]
+		}
+
+		findRes, err := repo.Find(opts)
+
+		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		c.String(http.StatusOK, getParams.Sort)
+		c.JSON(http.StatusOK, findRes)
 	}
 }
 
