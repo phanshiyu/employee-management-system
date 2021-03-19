@@ -17,6 +17,6 @@ func Initialize(router *gin.RouterGroup, db *sqlx.DB) {
 	}
 
 	// create new repo
-	router.GET("", getHandler(repo))
-	router.POST("/upload", uploadHandler(repo))
+	router.GET("", NewHandler(repo, getHandler))
+	router.POST("/upload", NewHandler(repo, uploadHandler))
 }

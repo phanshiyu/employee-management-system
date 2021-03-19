@@ -9,8 +9,6 @@ import (
 	"strconv"
 )
 
-// TODO: to refactor out
-// CSV configs
 type CsvConfig struct {
 	ColsPerRow        int
 	CommentIdentifier string

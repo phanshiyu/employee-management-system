@@ -7,14 +7,15 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/phanshiyu/employee-salary-management/golang/config"
-	db "github.com/phanshiyu/employee-salary-management/golang/database"
+	database "github.com/phanshiyu/employee-salary-management/golang/database"
 	"github.com/phanshiyu/employee-salary-management/golang/users"
 )
 
 func main() {
-	// get database config
+	// get configs
 	dbConfig := config.GetDatabaseConfigFromEnv()
-	db, err := db.New(dbConfig)
+
+	db, err := database.New(dbConfig)
 	if err != nil {
 		log.Fatalln(err)
 	}
