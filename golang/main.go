@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
@@ -21,6 +22,11 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowHeaders = []string{"Content-Encoding"}
+	r.Use(cors.New(corsConfig))
 
 	v1 := r.Group("/")
 	usersRouter := v1.Group("/users")

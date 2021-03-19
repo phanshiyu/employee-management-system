@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -35,6 +36,9 @@ type appError struct {
 func newAppError(e error) *appError {
 	code := ""
 	httpCode := http.StatusInternalServerError
+
+	log.Println(e)
+
 	switch e {
 	case ErrKeyAlreadyExist:
 		code = "ErrKeyAlreadyExist"
@@ -47,6 +51,9 @@ func newAppError(e error) *appError {
 		code = "ErrInvalidCsvFormat"
 		httpCode = http.StatusBadRequest
 		break
+	case ErrContentEncodingNotSupported:
+		code = "ErrContentEncodingNotSupported"
+		httpCode = http.StatusBadRequest
 	case ErrWithCsvFile:
 		code = "ErrWithCsvFile"
 		httpCode = http.StatusBadRequest

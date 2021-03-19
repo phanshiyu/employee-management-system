@@ -1,7 +1,7 @@
-version: '3.8'
+version: "3.8"
 services:
   golang:
-    build: 
+    build:
       context: golang
     volumes:
       - ./golang:/golang-server
@@ -17,3 +17,13 @@ services:
     env_file: .env.dev
     volumes:
       - ./postgres/migrations:/docker-entrypoint-initdb.d/
+
+  react:
+    build:
+      context: react-app
+    volumes:
+      - ./react-app:/react-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - golang
