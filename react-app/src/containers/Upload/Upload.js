@@ -81,7 +81,6 @@ export const Upload = () => {
 
   const handleOnUploadClick = () => {
     execute(selectedFile, (prog) => {
-      console.log(prog);
       setProgress(prog / 100);
     });
   };
@@ -110,7 +109,7 @@ export const Upload = () => {
               maxFiles: 1,
             }}
           >
-            <NonIdealState icon="upload" title="Upload a CSV file" />
+            <NonIdealState icon="upload" title="Click or drag me a csv" />
           </Dropzone>
         ) : (
           <>

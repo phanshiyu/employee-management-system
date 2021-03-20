@@ -5,7 +5,7 @@ import { Button, NonIdealState } from '@blueprintjs/core';
 
 import Table from 'components/Table/Table';
 
-import { Root } from './UsersTable.styled';
+import { Root, PaginationNavigationRoot } from './UsersTable.styled';
 
 export default function UserTable({
   items,
@@ -50,7 +50,7 @@ export const PaginationNavigation = ({
   onPrevClick: handlePrevClick,
   onNextClick: handleNextClick,
 }) => (
-  <div>
+  <PaginationNavigationRoot>
     <Button disabled={disabledPrev} onClick={handlePrevClick}>
       Previous
     </Button>
@@ -58,5 +58,5 @@ export const PaginationNavigation = ({
     <Button disabled={disabledNext} onClick={handleNextClick}>
       Next
     </Button>
-  </div>
+  </PaginationNavigationRoot>
 );
