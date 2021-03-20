@@ -1,23 +1,23 @@
 import styled from 'styled-components';
+import { Card } from '@blueprintjs/core';
+export const Root = styled.section`
+  height: 100%;
+`;
 
-export const Root = styled.section``;
-
-export const ContentContainer = styled.section`
+export const ContentContainer = styled.div`
   width: 100%;
   display: flex;
+
   align-items: flex-start;
 
   justify-content: space-between;
+
+  height: 100%;
 `;
 
-export const FilterContainer = styled.div`
-  background-color: #272635;
-  border-radius: 8px;
-  color: #e8e9f3;
+export const SearchContainer = styled(Card)`
   width: 100%;
-  max-width: 300px;
-
-  padding: 32px;
+  max-width: 350px;
 
   > *:not(:last-child) {
     margin-bottom: 32px;
@@ -25,10 +25,6 @@ export const FilterContainer = styled.div`
 
   button {
     width: 100%;
-  }
-
-  .bp3-divider {
-    border-color: white;
   }
 `;
 
@@ -42,16 +38,25 @@ export const RangeInputContainer = styled.div`
   }
 `;
 
-export const ResultsContainer = styled.div`
+export const ResultsContainer = styled(Card)`
   width: 100%;
   margin-left: 24px;
-  table {
-    width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+`;
+
+export const SalarySearchContainer = styled.div`
+  > *:not(:last-child) {
+    margin-bottom: 16px;
   }
 `;
 
-export const SalaryFilterContainer = styled.div`
+export const SortContentContainer = styled.div`
+  display: flex;
   > *:not(:last-child) {
-    margin-bottom: 16px;
+    margin-right: 8px;
   }
 `;

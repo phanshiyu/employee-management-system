@@ -37,12 +37,10 @@ export default function Table({
   numCols,
   headerLabels = [],
   keys = [],
-  data = {},
+  items = {},
   loading = false,
 }) {
   const renderIntoCell = (rowIndex, colIndex) => {
-    let items = data?.items;
-
     if (!items) {
       items = [];
     }
