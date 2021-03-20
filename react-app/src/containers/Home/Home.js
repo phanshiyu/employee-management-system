@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getUsers, uploadUserCSV } from 'services/userService';
+import { getUsers } from 'services/userService';
 
 // ui components
 import { Button, Divider } from '@blueprintjs/core';
 
 import RangeControlGroup from 'components/RangeControlGroup/RangeControlGroup';
 import SortControl from 'components/SortControl/SortControl';
-// import Dropzone from 'components/Dropzone/Dropzone';
 import UsersTable, {
   PaginationNavigation,
 } from 'components/UsersTable/UsersTable';
@@ -27,7 +26,7 @@ export default function Home() {
   const { execute, status, value, error } = useAsync(getUsers);
   useAsyncErrorHandler(error);
 
-  const [limit, setLimit] = useState(30);
+  const [limit] = useState(30);
   const [offset, setOffset] = useState(0);
   const [page, setPage] = useState(1);
   const [range, setRange] = useState([0, maxSalary]);
@@ -56,7 +55,6 @@ export default function Home() {
     setOffset((val) => val + limit);
   };
 
-  // derived values
   const totalPage = value ? Math.floor(value.total / limit) : '';
 
   const handleRangeValueChange = (newRange) => {
@@ -79,10 +77,6 @@ export default function Home() {
     }
     setRange((prevRange) => [prevRange[0], parseInt(event.target.value)]);
   };
-
-  // const handleOnDrop = (files) => {
-  //   uploadUserCSV(files[0]);
-  // };
 
   const handleSearchClick = () => {
     setSalaryRange(range);
@@ -122,6 +116,9 @@ export default function Home() {
             }}
           />
           <Button
+            icon="search"
+            intent="primary"
+            large
             onClick={handleSearchClick}
             text="Search"
             disabled={status === 'pending'}
@@ -129,15 +126,6 @@ export default function Home() {
           />
         </SearchContainer>
         <ResultsContainer>
-          {/* <Dropzone
-            onDrop={handleOnDrop}
-            dropzoneProps={{
-              accept: 'text/csv',
-              maxFiles: 1,
-            }}
-          >
-            <Button icon={<Icon icon="document" />}>Upload CSV</Button>
-          </Dropzone> */}
           <UsersTable
             numCols={4}
             numRows={limit}

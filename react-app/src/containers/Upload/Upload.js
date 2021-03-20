@@ -2,71 +2,19 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import Typography from 'components/Typography/Typography';
+import FileDetailsPreview from 'components/FileDetailsPreview/FileDetailsPreview';
 import Dropzone from 'components/Dropzone/Dropzone';
 import { uploadUserCSV } from 'services/userService';
-import {
-  Card,
-  ProgressBar,
-  NonIdealState,
-  Button,
-  Callout,
-} from '@blueprintjs/core';
+import { Card, ProgressBar, NonIdealState, Button } from '@blueprintjs/core';
 import { useAsync } from 'hooks/useAsync';
 import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
 import { showToast } from 'components/Toaster/Toaster';
-
-const FileDetailRoot = styled.div``;
-
-const FileDetailsPreviewRoot = styled.div`
-  ul {
-    list-style-type: none;
-    padding: 0;
-
-    > *:not(:last-child) {
-      margin-bottom: 8px;
-    }
-  }
-`;
-
-const FileDetail = ({ label, value }) => (
-  <FileDetailRoot>
-    <Typography secondaryColor>{label}</Typography>
-    <Typography variant="h5">{value}</Typography>
-  </FileDetailRoot>
-);
-
-const FileDetailsPreview = ({ file }) => {
-  const { name, path, size, type } = file;
-  return (
-    <FileDetailsPreviewRoot>
-      <Typography>
-        Please confirm yo file details, if not, feel free to pick another one
-      </Typography>
-      <Callout>
-        <ul>
-          <li>
-            <FileDetail label="Name" value={name} />
-          </li>
-          <li>
-            <FileDetail label="Path" value={path} />
-          </li>
-          <li>
-            <FileDetail label="Size" value={size} />
-          </li>
-          <li>
-            <FileDetail label="Type" value={type} />
-          </li>
-        </ul>
-      </Callout>
-    </FileDetailsPreviewRoot>
-  );
-};
 
 const ActionsContainer = styled.div`
   display: flex;
   justify-content: space-between;
 
-  margin-top: 8px;
+  margin-top: 16px;
 `;
 
 export const Upload = () => {
@@ -117,7 +65,10 @@ export const Upload = () => {
               <ProgressBar progress={progress} />
             ) : (
               <>
-                <FileDetailsPreview file={selectedFile} />
+                <FileDetailsPreview
+                  file={selectedFile}
+                  descripton="Please confirm yo file details, if not, feel free to pick another one"
+                />
                 <ActionsContainer>
                   <Button
                     onClick={handleOnUploadClick}
@@ -136,7 +87,7 @@ export const Upload = () => {
                       maxFiles: 1,
                     }}
                   >
-                    <Button icon="upload" large disabled={status === 'pending'}>
+                    <Button large disabled={status === 'pending'}>
                       Choose a different file
                     </Button>
                   </Dropzone>
