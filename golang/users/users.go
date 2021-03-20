@@ -18,6 +18,6 @@ func Initialize(router *gin.RouterGroup, db *sqlx.DB) {
 
 	router.GET("", newHandler(repo, getUsersHandler))
 	router.GET("/:id", newHandler(repo, getUserHandler))
-	router.POST("/create", newHandler(repo, createUserHandler))
+	router.POST("", newHandler(repo, createUserHandler))
 	router.POST("/upload", newHandler(repo, uploadHandler))
 }

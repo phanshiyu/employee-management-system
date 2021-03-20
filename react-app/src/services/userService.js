@@ -87,3 +87,7 @@ export async function uploadUserCSV(file, onProgressEvent) {
     },
   });
 }
+
+export async function createUser(user) {
+  return axiosClient.post('/users', user);
+}

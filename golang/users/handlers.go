@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,7 @@ func createUserHandler(c *gin.Context, repo IRepo) *appError {
 	u := &User{}
 	err := c.BindJSON(u)
 	if err != nil {
+		log.Println(err)
 		return newAppError(ErrDataValidationFailure)
 	}
 

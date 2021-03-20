@@ -25,7 +25,7 @@ func main() {
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
-	corsConfig.AllowHeaders = []string{"Content-Encoding"}
+	corsConfig.AllowHeaders = []string{"Content-Encoding", "content-type"}
 	r.Use(cors.New(corsConfig))
 
 	v1 := r.Group("/")
