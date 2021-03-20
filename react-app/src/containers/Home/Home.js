@@ -55,7 +55,7 @@ export default function Home() {
     setOffset((val) => val + limit);
   };
 
-  const totalPage = value ? Math.floor(value.total / limit) : '';
+  const totalPage = value ? Math.floor(value.total / limit) + 1 : '';
 
   const handleRangeValueChange = (newRange) => {
     setRange(newRange);

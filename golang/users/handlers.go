@@ -28,6 +28,22 @@ func newHandler(repo IRepo, fn handlerFunc) gin.HandlerFunc {
 	}
 }
 
+func createUserHandler(c *gin.Context, repo IRepo) *appError {
+	u := &User{}
+	err := c.BindJSON(u)
+	if err != nil {
+		return newAppError(ErrDataValidationFailure)
+	}
+
+	newUser, err := repo.Create(u)
+	if err != nil {
+		return newAppError(err)
+	}
+
+	c.JSON(http.StatusAccepted, newUser)
+	return nil
+}
+
 func getUserHandler(c *gin.Context, repo IRepo) *appError {
 	userID := c.Param("id")
 

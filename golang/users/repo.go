@@ -21,8 +21,8 @@ type IRepo interface {
 	FindByID(id string) (*User, error)
 	Find(params *FindOptions) (*FindResults, error)
 	BulkCreate(fn func(CreateUserFunc) error) error
-	Create(u *User) error
-	Update(u *User) error
+	Create(u *User) (*User, error)
+	Update(u *User) (*User, error)
 	DeleteByID(id string) error
 }
 
@@ -154,8 +154,17 @@ func (r *repo) FindByID(id string) (*User, error) {
 	return u, nil
 }
 
-func (r *repo) Create(u *User) error {
-	panic("Not implemented")
+func (r *repo) Create(u *User) (*User, error) {
+	if err := ValidateUserStruct(u); err != nil {
+		return nil, err
+	}
+
+	newUser := &User{}
+	if err := r.createUser.Get(newUser, u); err != nil {
+		return nil, normalizeErr(err)
+	}
+
+	return newUser, nil
 }
 
 func (r *repo) BulkCreate(fn func(CreateUserFunc) error) error {
@@ -199,7 +208,7 @@ func (r *repo) BulkCreate(fn func(CreateUserFunc) error) error {
 	return tx.Commit()
 }
 
-func (r *repo) Update(u *User) error {
+func (r *repo) Update(u *User) (*User, error) {
 	panic("Not implemented")
 }
 
