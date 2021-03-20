@@ -61,6 +61,9 @@ func newAppError(e error) *appError {
 	case ErrDataValidationFailure:
 		code = "ErrDataValidationFailure"
 		httpCode = http.StatusBadRequest
+	case ErrUserDoesNotExist:
+		code = "ErrUserDoesNotExist"
+		httpCode = http.StatusNotFound
 
 	default:
 		code = "ErrInternalServer"

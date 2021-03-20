@@ -18,7 +18,7 @@ type GetParams struct {
 type handlerFunc func(*gin.Context, IRepo) *appError
 
 // gin handler wrapper, to standardise error response and to inject the repo into the handlers
-func NewHandler(repo IRepo, fn handlerFunc) gin.HandlerFunc {
+func newHandler(repo IRepo, fn handlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := fn(c, repo); err != nil {
 			c.AbortWithStatusJSON(err.HttpCode, HttpErrorJSON{
@@ -28,8 +28,19 @@ func NewHandler(repo IRepo, fn handlerFunc) gin.HandlerFunc {
 	}
 }
 
-// gin http request handlers resides here
-func getHandler(c *gin.Context, repo IRepo) *appError {
+func getUserHandler(c *gin.Context, repo IRepo) *appError {
+	userID := c.Param("id")
+
+	user, err := repo.FindByID(userID)
+	if err == ErrUserDoesNotExist {
+		return newAppError(ErrUserDoesNotExist)
+	}
+
+	c.JSON(http.StatusAccepted, user)
+	return nil
+}
+
+func getUsersHandler(c *gin.Context, repo IRepo) *appError {
 	// set default param values
 	params := GetParams{
 		MinSalary: -1,
