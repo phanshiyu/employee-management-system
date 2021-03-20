@@ -28,7 +28,10 @@ export const Upload = () => {
   };
 
   const handleOnUploadClick = () => {
+    setProgress(0);
+
     execute(selectedFile, (prog) => {
+      console.log(prog / 100);
       setProgress(prog / 100);
     });
   };
@@ -62,7 +65,12 @@ export const Upload = () => {
         ) : (
           <>
             {status === 'pending' ? (
-              <ProgressBar progress={progress} />
+              <>
+                <Typography>
+                  {progress < 1 ? '我正在为你上传..' : '破译... 你明白吗?'}{' '}
+                </Typography>
+                <ProgressBar value={progress} />
+              </>
             ) : (
               <>
                 <FileDetailsPreview

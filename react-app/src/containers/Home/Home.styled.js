@@ -15,7 +15,7 @@ export const ContentContainer = styled.div`
   height: 100%;
 `;
 
-export const SearchContainer = styled(Card)`
+export const LeftContainer = styled.div`
   position: sticky;
   top: 0;
 
@@ -23,11 +23,15 @@ export const SearchContainer = styled(Card)`
   max-width: 350px;
 
   > *:not(:last-child) {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
+`;
 
-  button {
-    width: 100%;
+export const SearchContainer = styled(Card)`
+  width: 100%;
+
+  > *:not(:last-child) {
+    margin-bottom: 32px;
   }
 `;
 

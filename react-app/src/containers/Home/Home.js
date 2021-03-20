@@ -12,6 +12,7 @@ import UsersTable, {
 
 import {
   Root,
+  LeftContainer,
   SearchContainer,
   ContentContainer,
   ResultsContainer,
@@ -87,44 +88,57 @@ export default function Home() {
   return (
     <Root>
       <ContentContainer>
-        <SearchContainer>
-          <RangeControlGroup
-            label="Salary range"
-            range={range}
-            onMinInputChange={handleMinInputChange}
-            onMaxInputChange={handleMaxInputChange}
-            rangeSliderProps={{
-              min: 0,
-              max: maxSalary,
-              stepSize: 1,
-              labelStepSize: maxSalary / 4,
-              onChange: handleRangeValueChange,
-              value: range,
-            }}
-          />
-          <Divider />
-          <SortControl
-            label="Sort by"
-            sortKey={sortKey}
-            sortDirection={sortDirection}
-            sortKeys={['id', 'login', 'name', 'salary']}
-            onSortKeyChange={(event) => {
-              setSortKey(event.target.value);
-            }}
-            onSortDirectionChange={(event) => {
-              setSortDirection(event.target.value);
-            }}
-          />
+        <LeftContainer>
           <Button
-            icon="search"
+            fill
+            icon="add"
             intent="primary"
             large
-            onClick={handleSearchClick}
-            text="Search"
+            // onClick={handleSearchClick}
+            text="Create"
             disabled={status === 'pending'}
             loading={status === 'pending'}
           />
-        </SearchContainer>
+          <SearchContainer>
+            <RangeControlGroup
+              label="Salary range"
+              range={range}
+              onMinInputChange={handleMinInputChange}
+              onMaxInputChange={handleMaxInputChange}
+              rangeSliderProps={{
+                min: 0,
+                max: maxSalary,
+                stepSize: 1,
+                labelStepSize: maxSalary / 4,
+                onChange: handleRangeValueChange,
+                value: range,
+              }}
+            />
+            <Divider />
+            <SortControl
+              label="Sort by"
+              sortKey={sortKey}
+              sortDirection={sortDirection}
+              sortKeys={['id', 'login', 'name', 'salary']}
+              onSortKeyChange={(event) => {
+                setSortKey(event.target.value);
+              }}
+              onSortDirectionChange={(event) => {
+                setSortDirection(event.target.value);
+              }}
+            />
+            <Button
+              fill
+              icon="search"
+              intent="primary"
+              large
+              onClick={handleSearchClick}
+              text="Search"
+              disabled={status === 'pending'}
+              loading={status === 'pending'}
+            />
+          </SearchContainer>
+        </LeftContainer>
         <ResultsContainer>
           <UsersTable
             numCols={4}
