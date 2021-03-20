@@ -20,16 +20,24 @@ const getStyle = (variant) => {
 };
 
 const Typography = styled(
-  ({ tag: Tag = 'p', variant = '', cursive = false, children, ...props }) => {
+  ({
+    tag: Tag = 'p',
+    variant = '',
+    cursive = false,
+    secondaryColor,
+    children,
+    ...props
+  }) => {
     return <Tag {...props}>{children}</Tag>;
   }
 )`
-  ${({ variant, cursive }) => [
+  ${({ variant, cursive, secondaryColor }) => [
     getStyle(variant),
     cursive
       ? `font-family: 'Bad Script', cursive;
   `
       : '',
+    secondaryColor ? 'color: #457b9d;' : '',
   ]}
 `;
 

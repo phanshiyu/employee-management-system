@@ -6,6 +6,6 @@ export const AppToaster = Toaster.create({
   position: Position.TOP,
 });
 
-export const showToast = (message) => {
-  AppToaster.show({ message, intent: 'danger' });
+export const showToast = (message, intent = 'danger') => {
+  AppToaster.show({ message, intent });
 };

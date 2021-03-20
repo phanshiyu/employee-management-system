@@ -5,6 +5,7 @@ export default function Dropzone({
   onDrop = () => {},
   dropzoneProps = {},
   children,
+  className,
 }) {
   const handleOnDrop = useCallback((acceptedFiles) => {
     onDrop(acceptedFiles);
@@ -15,7 +16,7 @@ export default function Dropzone({
   });
 
   return (
-    <div {...getRootProps()}>
+    <div {...getRootProps()} className={className}>
       <input {...getInputProps()} />
       {children}
     </div>

@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
-import Home from 'containers/Home/Home';
 import { Root } from 'App.styled';
 import Navbar from 'components/Navbar/Navbar';
 import Typography from 'components/Typography/Typography';
+
+//Pages
+import Home from 'containers/Home/Home';
+import Upload from 'containers/Upload/Upload';
 
 function App() {
   return (
@@ -15,10 +18,22 @@ function App() {
             GovTech
           </Typography>
           <ul>
-            <li>{/* <button>Upload</button> */}</li>
+            <li>
+              <Link to="/">
+                <button>Employees</button>
+              </Link>
+            </li>
+            <li>
+              <Link to="/upload">
+                <button>Upload</button>
+              </Link>
+            </li>
           </ul>
         </Navbar>
         <Switch>
+          <Route path="/upload">
+            <Upload />
+          </Route>
           <Route path="/">
             <Home />
           </Route>

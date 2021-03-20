@@ -14,15 +14,17 @@ export const useAsyncErrorHandler = (error) => {
         case SERVER_RESPONSE_ERROR: {
           const { data } = error;
 
-          showToast(`Server response error code: ${data.code}`);
+          showToast(`Server dnt like you: ${data.code}`);
           break;
         }
         case NO_RESPONSE_ERROR: {
-          showToast('Did not manage to receive response from server');
+          showToast('Server dnt give respose leh');
           break;
         }
         default: {
-          showToast('Something went wrong :(');
+          showToast(
+            'Something bad happened, but i dunno what, dont ask me, i rly dunno'
+          );
         }
       }
     }

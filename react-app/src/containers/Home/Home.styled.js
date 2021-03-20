@@ -28,16 +28,6 @@ export const SearchContainer = styled(Card)`
   }
 `;
 
-export const RangeInputContainer = styled.div`
-  display: flex;
-  justify-content: center;
-
-  margin-top: 16px;
-  > *:not(:last-child) {
-    margin-right: 16px;
-  }
-`;
-
 export const ResultsContainer = styled(Card)`
   width: 100%;
   margin-left: 24px;
@@ -46,17 +36,4 @@ export const ResultsContainer = styled(Card)`
   justify-content: center;
   align-items: center;
   height: 100%;
-`;
-
-export const SalarySearchContainer = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: 16px;
-  }
-`;
-
-export const SortContentContainer = styled.div`
-  display: flex;
-  > *:not(:last-child) {
-    margin-right: 8px;
-  }
 `;
