@@ -1,6 +1,7 @@
 package users
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
@@ -20,13 +21,181 @@ func TestMain(m *testing.M) {
 }
 
 func TestBulkCreate(t *testing.T) {
-	// bulk create should run smoothly without any error
+	t.Run("adding a series of users should be successful", func(t *testing.T) {
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			err := createUser(&User{
+				ID:     "1",
+				Name:   "1",
+				Login:  "1",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			err = createUser(&User{
+				ID:     "2",
+				Name:   "2",
+				Login:  "2",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		assert.Equal(t, 2, getTotalUsers(testEnv.Db), "total users should be 2")
+		assert.Nil(t, err)
+	})
+
+	t.Run("should update user if id already exists and insert if id does not exist", func(t *testing.T) {
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			err := createUser(&User{
+				ID:     "1",
+				Name:   "1Updated",
+				Login:  "1Updated",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			err = createUser(&User{
+				ID:     "3",
+				Name:   "3",
+				Login:  "3",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		// id one should be updated
+		user, _ := testEnv.Re.FindByID("1")
+		assert.Equal(t, "1Updated", user.Name, "user with id 1, should be updated")
+		assert.Equal(t, 3, getTotalUsers(testEnv.Db), "total users should be 3")
+		assert.Nil(t, err)
+	})
+
+	t.Run("should rollback if there is an invalid entry", func(t *testing.T) {
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			err := createUser(&User{
+				ID:     "1",
+				Name:   "1UpdatedAgain",
+				Login:  "1UpdatedAgain",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			err = createUser(&User{
+				ID:     "3",
+				Name:   "3Updated",
+				Login:  "3Updated",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			// new id but conflicts
+			err = createUser(&User{
+				ID:     "4",
+				Name:   "4",
+				Login:  "3Updated",
+				Salary: 12.1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		// should expect the same assertions to pass
+		user, _ := testEnv.Re.FindByID("1")
+		assert.Equal(t, "1Updated", user.Name, "user with id 1 should not be updated")
+		assert.Equal(t, 3, getTotalUsers(testEnv.Db), "total users should remain as 3")
+		// this should fail though
+		assert.Equal(t, ErrKeyAlreadyExist, err)
+	})
+
+	t.Run("should not allow salary to be negative", func(t *testing.T) {
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			err := createUser(&User{
+				ID:     "4",
+				Name:   "4",
+				Login:  "4",
+				Salary: -1,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+		assert.Equal(t, ErrDataValidationFailure, err)
+		user, _ := testEnv.Re.FindByID("4")
+		assert.Nil(t, user)
+	})
+
+	t.Run("should not allow creation with duplicate login", func(t *testing.T) {
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			err := createUser(&User{
+				ID:     "4",
+				Name:   "4",
+				Login:  "4",
+				Salary: 10,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			err = createUser(&User{
+				ID:     "5",
+				Name:   "5",
+				Login:  "4",
+				Salary: 10,
+			})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		assert.Equal(t, ErrKeyAlreadyExist, err)
+		user, _ := testEnv.Re.FindByID("4")
+		assert.Nil(t, user)
+		user, _ = testEnv.Re.FindByID("5")
+		assert.Nil(t, user)
+	})
+}
+
+func TestFind(t *testing.T) {
+	// add a few users
 	err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
 		err := createUser(&User{
 			ID:     "1",
-			Name:   "a",
-			Login:  "c",
-			Salary: 12.1,
+			Name:   "1",
+			Login:  "1",
+			Salary: 1,
 		})
 
 		if err != nil {
@@ -35,28 +204,9 @@ func TestBulkCreate(t *testing.T) {
 
 		err = createUser(&User{
 			ID:     "2",
-			Name:   "b",
-			Login:  "e",
-			Salary: 12.1,
-		})
-
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	assert.Equal(t, getTotalUsers(testEnv.Db), 2, "total users should be 2")
-	assert.Nil(t, err)
-
-	// bulk create should update user if id already exists and insert if id does not exist
-	err = testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-		err := createUser(&User{
-			ID:     "1",
-			Name:   "ab_updated",
-			Login:  "cd",
-			Salary: 12.1,
+			Name:   "2",
+			Login:  "2",
+			Salary: 2,
 		})
 
 		if err != nil {
@@ -65,54 +215,20 @@ func TestBulkCreate(t *testing.T) {
 
 		err = createUser(&User{
 			ID:     "3",
-			Name:   "b",
-			Login:  "ef",
-			Salary: 12.1,
-		})
-
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	// id one should be updated
-	user, _ := testEnv.Re.FindByID("1")
-	assert.Equal(t, user.Name, "ab_updated", "user with id 1, should be updated")
-	assert.Equal(t, getTotalUsers(testEnv.Db), 3, "total users should be 3")
-	assert.Nil(t, err)
-
-	// if there is an invalid entry, the transaction is rolled back
-	err = testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-		err := createUser(&User{
-			ID:     "1",
-			Name:   "dedfed",
-			Login:  "cd",
-			Salary: 12.1,
-		})
-
-		if err != nil {
-			return err
-		}
-
-		err = createUser(&User{
-			ID:     "3",
-			Name:   "bcdef",
+			Name:   "3",
 			Login:  "3",
-			Salary: 12.1,
+			Salary: 3,
 		})
 
 		if err != nil {
 			return err
 		}
 
-		// new id but salary conflicts
 		err = createUser(&User{
 			ID:     "4",
-			Name:   "abc",
-			Login:  "3",
-			Salary: 12.1,
+			Name:   "4",
+			Login:  "4",
+			Salary: 4,
 		})
 
 		if err != nil {
@@ -122,12 +238,60 @@ func TestBulkCreate(t *testing.T) {
 		return nil
 	})
 
-	// should expect the same assertions to pass
-	user, _ = testEnv.Re.FindByID("1")
-	assert.Equal(t, user.Name, "ab_updated", "user with id 1, should be updated")
-	assert.Equal(t, getTotalUsers(testEnv.Db), 3, "total users should be 3")
-	// this should fail though
-	assert.Equal(t, err, ErrKeyAlreadyExist)
-}
+	assert.Equal(t, 4, getTotalUsers(testEnv.Db), "total users should be 4")
+	assert.Nil(t, err)
 
-// TODO: test validation of each parameter
+	t.Run("empty options should return me all users, and should be sorted by ID, ascending order", func(t *testing.T) {
+		results, err := testEnv.Re.Find(&FindOptions{})
+
+		var buffer bytes.Buffer
+		for _, item := range results.Items {
+			buffer.WriteString(item.ID)
+
+		}
+		assert.Nil(t, err)
+		assert.Equal(t, 4, results.TotalCount)
+		assert.Equal(t, "1234", buffer.String())
+	})
+
+	t.Run("limit 1 should return only 1", func(t *testing.T) {
+		results, err := testEnv.Re.Find(&FindOptions{Limit: 1})
+
+		assert.Nil(t, err)
+		assert.Equal(t, 4, results.TotalCount)
+		assert.Equal(t, 1, len(results.Items))
+	})
+
+	t.Run("limit 1 offset 2 should return only the third user", func(t *testing.T) {
+		results, err := testEnv.Re.Find(&FindOptions{Limit: 1, Offset: 2})
+
+		assert.Nil(t, err)
+		assert.Equal(t, 4, results.TotalCount)
+		assert.Equal(t, 1, len(results.Items))
+		assert.Equal(t, "3", results.Items[0].ID)
+	})
+
+	t.Run("min salary 3 and max salary 3 should only return third user", func(t *testing.T) {
+		minSalary := 3
+		maxSalary := 3
+		results, err := testEnv.Re.Find(&FindOptions{MinSalary: &minSalary, MaxSalary: &maxSalary})
+
+		assert.Nil(t, err)
+		assert.Equal(t, 1, results.TotalCount)
+		assert.Equal(t, 1, len(results.Items))
+		assert.Equal(t, "3", results.Items[0].ID)
+	})
+
+	t.Run("min salary 2 and max salary 4 should only return users 2 - 4", func(t *testing.T) {
+		minSalary := 2
+		maxSalary := 4
+		results, err := testEnv.Re.Find(&FindOptions{MinSalary: &minSalary, MaxSalary: &maxSalary})
+
+		assert.Nil(t, err)
+		assert.Equal(t, 3, results.TotalCount)
+		assert.Equal(t, 3, len(results.Items))
+		assert.Equal(t, "2", results.Items[0].ID)
+		assert.Equal(t, "3", results.Items[1].ID)
+		assert.Equal(t, "4", results.Items[2].ID)
+	})
+}

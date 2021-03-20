@@ -16,6 +16,9 @@ export const ContentContainer = styled.div`
 `;
 
 export const SearchContainer = styled(Card)`
+  position: sticky;
+  top: 0;
+
   width: 100%;
   max-width: 350px;
 

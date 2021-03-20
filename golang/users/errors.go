@@ -1,20 +1,20 @@
 package users
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func newError(msg string) error {
-	return errors.New(fmt.Sprintf("users: %s", msg))
+	return fmt.Errorf("users: %s", msg)
 }
 
 var (
 	ErrContentEncodingNotSupported = newError("content encoding is not supported")
 
-	ErrUserDoesNotExist = newError("user with given ID does not exist")
+	ErrUserDoesNotExist      = newError("user with given ID does not exist")
+	ErrDataValidationFailure = newError("user data validation failed")
 
 	ErrInvalidCsvFormat   = newError("invalid csv format")
 	ErrKeyAlreadyExist    = newError("key already exists")
@@ -46,22 +46,22 @@ func newAppError(e error) *appError {
 	case ErrInvalidQueryParams:
 		code = "ErrInvalidQueryParams"
 		httpCode = http.StatusBadRequest
-		break
 	case ErrInvalidCsvFormat:
 		code = "ErrInvalidCsvFormat"
 		httpCode = http.StatusBadRequest
-		break
 	case ErrContentEncodingNotSupported:
 		code = "ErrContentEncodingNotSupported"
 		httpCode = http.StatusBadRequest
 	case ErrWithCsvFile:
 		code = "ErrWithCsvFile"
 		httpCode = http.StatusBadRequest
-		break
 	case ErrEmptyCsvFile:
 		code = "ErrEmptyCsvFile"
 		httpCode = http.StatusBadRequest
-		break
+	case ErrDataValidationFailure:
+		code = "ErrDataValidationFailure"
+		httpCode = http.StatusBadRequest
+
 	default:
 		code = "ErrInternalServer"
 	}

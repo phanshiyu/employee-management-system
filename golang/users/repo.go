@@ -31,7 +31,7 @@ type repo struct {
 	db         *sqlx.DB
 	findByID   *sqlx.Stmt
 	createUser *sqlx.NamedStmt
-	updateUser *sqlx.NamedStmt
+	// updateUser *sqlx.NamedStmt
 }
 
 type CreateUserFunc func(*User) error
@@ -85,7 +85,7 @@ func (r *repo) Find(options *FindOptions) (*FindResults, error) {
 		offset = options.Offset
 	}
 
-	if options.Limit >= 0 {
+	if options.Limit > 0 {
 		limit = options.Limit
 	}
 
@@ -216,6 +216,7 @@ func normalizeErr(err error) error {
 		default:
 			return err
 		}
+
 	default:
 		return err
 	}

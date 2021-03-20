@@ -33,7 +33,7 @@ func init() {
 				fmt.Println()
 			}
 
-			return err
+			return ErrDataValidationFailure
 		}
 
 		return nil

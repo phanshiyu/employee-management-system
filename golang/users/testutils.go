@@ -50,10 +50,10 @@ func clearTable(db *sqlx.DB) {
 	db.Exec("DROP TABLE users")
 }
 
-func resetTable(db *sqlx.DB) {
-	clearTable(db)
-	ensureTableExists(db)
-}
+// func resetTable(db *sqlx.DB) {
+// 	clearTable(db)
+// 	ensureTableExists(db)
+// }
 
 func getTotalUsers(db *sqlx.DB) int {
 	var count int
