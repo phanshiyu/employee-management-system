@@ -16,7 +16,7 @@ var (
 	ErrUserDoesNotExist      = newError("user with given ID does not exist")
 	ErrDataValidationFailure = newError("user data validation failed")
 
-	ErrInvalidCsvFormat   = newError("invalid csv format")
+	ErrInvalidCsvColumns  = newError("invalid csv format")
 	ErrKeyAlreadyExist    = newError("key already exists")
 	ErrEmptyCsvFile       = newError("csv cannot be empty")
 	ErrWithCsvFile        = newError("error with csv file")
@@ -46,8 +46,8 @@ func newAppError(e error) *appError {
 	case ErrInvalidQueryParams:
 		code = "ErrInvalidQueryParams"
 		httpCode = http.StatusBadRequest
-	case ErrInvalidCsvFormat:
-		code = "ErrInvalidCsvFormat"
+	case ErrInvalidCsvColumns:
+		code = "ErrInvalidCsvColumns"
 		httpCode = http.StatusBadRequest
 	case ErrContentEncodingNotSupported:
 		code = "ErrContentEncodingNotSupported"

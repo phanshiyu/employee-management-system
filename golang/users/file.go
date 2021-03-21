@@ -44,6 +44,7 @@ func marshalFromRecord(r []string) (*User, error) {
 
 // multipart file handlers, eg CSV
 func handleCSV(file multipart.File, repo IRepo) error {
+	var csvParseErr error
 	r := csv.NewReader(file)
 	defer file.Close()
 
@@ -54,7 +55,7 @@ func handleCSV(file multipart.File, repo IRepo) error {
 			record, err := r.Read()
 			if err == io.EOF {
 				if lineCount == 0 {
-					return ErrEmptyCsvFile
+					csvParseErr = ErrEmptyCsvFile
 				}
 				break
 			}
@@ -66,24 +67,34 @@ func handleCSV(file multipart.File, repo IRepo) error {
 
 			// check if length is as expected
 			if len(record) != csvConfig.ColsPerRow {
-				return ErrInvalidCsvFormat
+				return ErrInvalidCsvColumns
 			}
 
 			u, err := marshalFromRecord(record)
 			if err != nil {
-				return err
+				csvParseErr = err
+				break
 			}
 
 			// handle inserting of user
 			if err := createUser(u); err != nil {
-				return err
+				csvParseErr = err
+				break
 			}
+		}
+
+		if csvParseErr != nil {
+			return csvParseErr
 		}
 
 		// ends the txn
 		return nil
 	}); err != nil {
 		return err
+	}
+
+	if csvParseErr != nil {
+		return csvParseErr
 	}
 
 	return nil

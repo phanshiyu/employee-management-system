@@ -54,10 +54,6 @@ func NewRepo(db *sqlx.DB) (*repo, error) {
 	}, nil
 }
 
-func (r *repo) Transact(fn func() error) error {
-	panic("Not implemented")
-}
-
 type FindOptions struct {
 	MinSalary  *int
 	MaxSalary  *int

@@ -2,25 +2,17 @@ package users
 
 import (
 	"bytes"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var testEnv = &TestEnv{}
-
-func TestMain(m *testing.M) {
+func TestBulkCreate(t *testing.T) {
+	var testEnv = &TestEnv{}
 	// setup
 	setupDbAndRepo(testEnv)
 	clearTable(testEnv.Db)
 	ensureTableExists(testEnv.Db)
-	os.Exit(m.Run())
-	// teardown
-	testEnv.Db.Close()
-}
-
-func TestBulkCreate(t *testing.T) {
 	t.Run("adding a series of users should be successful", func(t *testing.T) {
 		users := []*User{
 			{
@@ -177,8 +169,13 @@ func TestBulkCreate(t *testing.T) {
 		user, _ = testEnv.Re.FindByID("5")
 		assert.Nil(t, user)
 	})
+	testEnv.Db.Close()
 }
 func TestFind(t *testing.T) {
+	var testEnv = &TestEnv{}
+	setupDbAndRepo(testEnv)
+	clearTable(testEnv.Db)
+	ensureTableExists(testEnv.Db)
 	// add a few users
 	err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
 		users := []*User{
@@ -226,7 +223,6 @@ func TestFind(t *testing.T) {
 		var buffer bytes.Buffer
 		for _, item := range results.Items {
 			buffer.WriteString(item.ID)
-
 		}
 		assert.Nil(t, err)
 		assert.Equal(t, 4, results.TotalCount)
@@ -273,4 +269,5 @@ func TestFind(t *testing.T) {
 		assert.Equal(t, "3", results.Items[1].ID)
 		assert.Equal(t, "4", results.Items[2].ID)
 	})
+	testEnv.Db.Close()
 }
