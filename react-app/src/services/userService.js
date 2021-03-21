@@ -66,10 +66,15 @@ export async function getUsers(
   });
 }
 
+export async function getUserUploads(userID) {
+  return axiosClient.get(`/users/${userID}/upload`);
+}
+
 export async function uploadUserCSV(file, onProgressEvent) {
   const formData = new FormData();
 
   formData.append('file', file);
+  formData.append('userID', 'user1');
 
   return axiosClient.post('/users/upload', formData, {
     headers: {

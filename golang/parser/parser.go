@@ -6,7 +6,8 @@ import (
 )
 
 type Response struct {
-	Err error
+	Status string
+	Err    error
 }
 
 type Request struct {
@@ -28,14 +29,20 @@ func NewParser(fileHandler func(*os.File) error) ParseFileFunc {
 				log.Fatal(err)
 			}
 
+			req.ResponseChan <- &Response{
+				Status: "processing",
+				Err:    nil,
+			}
 			// check for timeout, if too long we close the channel?
 			if err := fileHandler(file); err != nil {
 				req.ResponseChan <- &Response{
-					Err: err,
+					Status: "error",
+					Err:    err,
 				}
 			} else {
 				req.ResponseChan <- &Response{
-					Err: nil,
+					Status: "completed",
+					Err:    nil,
 				}
 			}
 

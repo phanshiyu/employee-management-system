@@ -16,6 +16,7 @@ export default function UserTable({
   paginationNavigation,
   loading,
   showEmptyState,
+  ...props
 }) {
   return (
     <Root>
@@ -34,6 +35,7 @@ export default function UserTable({
             headerLabels={headerLabels}
             keys={keys}
             loading={loading}
+            {...props}
           />
           {paginationNavigation}
         </div>

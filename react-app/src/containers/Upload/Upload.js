@@ -1,14 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+import { Card, ProgressBar, NonIdealState, Button } from '@blueprintjs/core';
+import Dropzone from 'components/Dropzone/Dropzone';
+
 import Typography from 'components/Typography/Typography';
 import FileDetailsPreview from 'components/FileDetailsPreview/FileDetailsPreview';
-import Dropzone from 'components/Dropzone/Dropzone';
-import { uploadUserCSV } from 'services/userService';
-import { Card, ProgressBar, NonIdealState, Button } from '@blueprintjs/core';
+import { showToast } from 'components/Toaster/Toaster';
+
+// services
+import { uploadUserCSV, getUserUploads } from 'services/userService';
+// hooks
 import { useAsync } from 'hooks/useAsync';
 import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
-import { showToast } from 'components/Toaster/Toaster';
+import Table from 'components/Table/Table';
+import { usePrevious } from 'hooks/usePrevious';
+import { formatDateString } from 'utils/format';
+
+const SpinnerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+
+  justify-content: center;
+  align-items: center;
+`;
+
+const bold = (val) => {
+  return val === 'processing' ? (
+    <SpinnerContainer>
+      <ProgressBar />
+    </SpinnerContainer>
+  ) : (
+    <b>{val}</b>
+  );
+};
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -17,9 +44,55 @@ const ActionsContainer = styled.div`
   margin-top: 16px;
 `;
 
+// assume userid = user1
+const userID = 'user1';
 export const Upload = () => {
-  const { execute, status, error } = useAsync(uploadUserCSV);
-  useAsyncErrorHandler(error);
+  const {
+    execute: uploadExecute,
+    status: uploadStatus,
+    error: uploadError,
+  } = useAsync(uploadUserCSV);
+  useAsyncErrorHandler(uploadError);
+
+  const {
+    execute: getUserUploadsExecute,
+    status: getUserUploadsStatus,
+    error: getUserUploadsError,
+    value: userUploads,
+  } = useAsync(getUserUploads);
+  useAsyncErrorHandler(getUserUploadsError);
+
+  useEffect(() => {
+    getUserUploadsExecute(userID);
+  }, []);
+
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      getUserUploadsExecute(userID);
+    }, 5000);
+    return () => {
+      clearInterval(pollInterval);
+    };
+  });
+
+  const prevUserUploads = usePrevious(userUploads);
+
+  useEffect(() => {
+    if (uploadStatus === 'success') {
+      showToast('Everybody calm down! CSV upload was a success!!!', 'success');
+
+      // reset state
+      setProgress(0);
+      setSelectedFile(null);
+      getUserUploadsExecute(userID);
+    }
+  }, [uploadStatus]);
+
+  useEffect(() => {
+    if (uploadStatus) {
+      getUserUploadsExecute(userID);
+    }
+  }, [uploadStatus]);
 
   const [selectedFile, setSelectedFile] = useState();
   const [progress, setProgress] = useState(0);
@@ -30,21 +103,10 @@ export const Upload = () => {
   const handleOnUploadClick = () => {
     setProgress(0);
 
-    execute(selectedFile, (prog) => {
-      console.log(prog / 100);
+    uploadExecute(selectedFile, (prog) => {
       setProgress(prog / 100);
     });
   };
-
-  useEffect(() => {
-    if (status === 'success') {
-      showToast('Everybody calm down! CSV upload was a success!!!', 'success');
-
-      // reset state
-      setProgress(0);
-      setSelectedFile(null);
-    }
-  }, [status]);
 
   return (
     <section>
@@ -52,6 +114,22 @@ export const Upload = () => {
         <Typography variant="h2" $mb={2}>
           Upload CSV
         </Typography>
+        <Table
+          numRows={prevUserUploads ? prevUserUploads?.length : 3}
+          numCols={4}
+          headerLabels={['ID', 'Status', 'Updated', 'Created']}
+          keys={['Filepath', 'Status', 'DateUpdated', 'DateCreated']}
+          transformData={{
+            Status: bold,
+            DateUpdated: formatDateString,
+            DateCreated: formatDateString,
+          }}
+          items={prevUserUploads}
+          loading={getUserUploadsStatus === 'pending' && !prevUserUploads}
+          tableProps={{ width: '100%' }}
+        />
+      </Card>
+      <Card>
         {!selectedFile ? (
           <Dropzone
             onDrop={handleOnDrop}
@@ -64,7 +142,7 @@ export const Upload = () => {
           </Dropzone>
         ) : (
           <>
-            {status === 'pending' ? (
+            {uploadStatus === 'pending' ? (
               <>
                 <Typography>
                   {progress < 1 ? '我正在为你上传..' : '破译... 你明白吗?'}{' '}
@@ -83,8 +161,8 @@ export const Upload = () => {
                     icon="upload"
                     large
                     intent="primary"
-                    disabled={status === 'pending'}
-                    loading={status === 'pending'}
+                    disabled={uploadStatus === 'pending'}
+                    loading={uploadStatus === 'pending'}
                   >
                     Upload
                   </Button>
@@ -95,7 +173,7 @@ export const Upload = () => {
                       maxFiles: 1,
                     }}
                   >
-                    <Button large disabled={status === 'pending'}>
+                    <Button large disabled={uploadStatus === 'pending'}>
                       Choose a different file
                     </Button>
                   </Dropzone>

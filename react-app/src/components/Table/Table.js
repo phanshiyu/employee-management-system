@@ -39,6 +39,8 @@ export default function Table({
   keys = [],
   items = {},
   loading = false,
+  transformData = {},
+  tableProps = {},
 }) {
   const renderIntoCell = (rowIndex, colIndex) => {
     if (!items) {
@@ -47,11 +49,13 @@ export default function Table({
 
     const rowData = items[rowIndex] ? items[rowIndex] : [];
     const cellValue = rowData ? rowData[keys[colIndex]] : '';
-    return cellValue;
+
+    const transformFn = transformData[keys[colIndex]];
+    return transformFn ? transformFn(cellValue) : cellValue;
   };
 
   return (
-    <HTMLTable striped>
+    <HTMLTable striped {...tableProps}>
       <thead>
         <tr>
           {headerLabels.map((label) => (

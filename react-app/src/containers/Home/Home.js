@@ -24,6 +24,7 @@ import { useAsync } from 'hooks/useAsync';
 import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
 import UserForm from 'components/UserForm/UserForm';
 import { showToast } from 'components/Toaster/Toaster';
+import { formatSGD } from 'utils/format';
 
 const FormContainer = styled(Card)`
   max-width: 500px;
@@ -195,6 +196,9 @@ export default function Home() {
               keys={['id', 'login', 'name', 'salary']}
               loading={getUsersStatus !== 'success'}
               items={getUsersResponse?.items}
+              transformData={{
+                salary: formatSGD,
+              }}
               paginationNavigation={
                 <PaginationNavigation
                   page={page}

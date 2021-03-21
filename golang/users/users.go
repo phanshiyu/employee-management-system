@@ -6,11 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/phanshiyu/employee-salary-management/golang/files"
 	"github.com/phanshiyu/employee-salary-management/golang/parser"
 )
 
 // here is where we initiate and bind all user related things together
 func Initialize(router *gin.RouterGroup, db *sqlx.DB) {
+	fileStatusRepo := files.NewRepo()
+
 	// route group and db should be injected from main.go
 	repo, err := NewRepo(db)
 
@@ -28,8 +31,9 @@ func Initialize(router *gin.RouterGroup, db *sqlx.DB) {
 		return nil
 	})
 
-	router.GET("", newHandler(repo, getUsersHandler))
-	router.GET("/:id", newHandler(repo, getUserHandler))
-	router.POST("", newHandler(repo, createUserHandler))
-	router.POST("/upload", newHandler(repo, withParseFileFunc(parseFile, uploadHandler)))
+	router.GET("", withErrorHandler(getUsersHandler(repo)))
+	router.GET("/:id", withErrorHandler(getUserHandler(repo)))
+	router.POST("", withErrorHandler(createUserHandler(repo)))
+	router.POST("/upload", withErrorHandler(uploadHandler(parseFile, fileStatusRepo)))
+	router.GET("/:id/upload", withErrorHandler(getUserUploads(fileStatusRepo)))
 }
