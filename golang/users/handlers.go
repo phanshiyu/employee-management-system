@@ -2,10 +2,13 @@ package users
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/phanshiyu/employee-salary-management/golang/parser"
 )
 
 type GetParams struct {
@@ -26,6 +29,12 @@ func newHandler(repo IRepo, fn handlerFunc) gin.HandlerFunc {
 				Code: err.Code,
 			})
 		}
+	}
+}
+
+func withParseFileFunc(processCsvFile parser.ParseFileFunc, handler func(*gin.Context, IRepo, parser.ParseFileFunc) *appError) handlerFunc {
+	return func(c *gin.Context, r IRepo) *appError {
+		return handler(c, r, processCsvFile)
 	}
 }
 
@@ -104,25 +113,53 @@ func getUsersHandler(c *gin.Context, repo IRepo) *appError {
 	return nil
 }
 
-func uploadHandler(c *gin.Context, repo IRepo) *appError {
+func uploadHandler(c *gin.Context, repo IRepo, parseFile parser.ParseFileFunc) *appError {
 	req := c.Request
 	contentEncoding := req.Header.Get("Content-Encoding")
 
-	if fileHandler, ok := FileHandlers[contentEncoding]; ok {
+	if _, ok := FileHandlers[contentEncoding]; ok {
 		req.ParseMultipartForm(10 << 20)
 		// Read file
 		file, fHeaders, err := req.FormFile("file")
+		if err != nil {
+			fmt.Println("Error Retrieving the File")
+			fmt.Println(err)
+			return newAppError(err)
+		}
 		fmt.Printf("Uploaded File: %+v\n", fHeaders.Filename)
 		fmt.Printf("File Size: %+v\n", fHeaders.Size)
 		fmt.Printf("MIME Header: %+v\n", fHeaders.Header)
 
+		// Create a temporary file within our temp-csv directory that follows
+		// a particular naming pattern
+		tempFile, err := ioutil.TempFile("temp-csv", "upload-*.csv")
 		if err != nil {
-			return newAppError(ErrWithCsvFile)
+			fmt.Println(err)
+		}
+		defer tempFile.Close()
+
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			fmt.Println(err)
 		}
 
-		if err := fileHandler(file, repo); err != nil {
-			return newAppError(ErrWithCsvFile)
+		tempFile.Write(fileBytes)
+
+		// push to channel
+		responseChan := parseFile(tempFile.Name())
+
+		// Remove the file here
+		defer func() {
+			if err := os.Remove(tempFile.Name()); err != nil {
+				log.Println(err)
+			}
+		}()
+
+		if res := <-responseChan; res.Err != nil {
+			return newAppError(res.Err)
 		}
+
+		c.String(http.StatusOK, tempFile.Name())
 	} else {
 		return newAppError(ErrContentEncodingNotSupported)
 	}
