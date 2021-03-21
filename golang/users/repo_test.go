@@ -22,27 +22,26 @@ func TestMain(m *testing.M) {
 
 func TestBulkCreate(t *testing.T) {
 	t.Run("adding a series of users should be successful", func(t *testing.T) {
-		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-			err := createUser(&User{
+		users := []*User{
+			{
 				ID:     "1",
 				Name:   "1",
 				Login:  "1",
 				Salary: 12.1,
-			})
-
-			if err != nil {
-				return err
-			}
-
-			err = createUser(&User{
+			},
+			{
 				ID:     "2",
 				Name:   "2",
 				Login:  "2",
 				Salary: 12.1,
-			})
+			},
+		}
 
-			if err != nil {
-				return err
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			for _, u := range users {
+				if err := createUser(u); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -53,30 +52,30 @@ func TestBulkCreate(t *testing.T) {
 	})
 
 	t.Run("should update user if id already exists and insert if id does not exist", func(t *testing.T) {
-		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-			err := createUser(&User{
+		users := []*User{
+			{
 				ID:     "1",
 				Name:   "1Updated",
 				Login:  "1Updated",
 				Salary: 12.1,
-			})
-
-			if err != nil {
-				return err
-			}
-
-			err = createUser(&User{
+			},
+			{
 				ID:     "3",
 				Name:   "3",
 				Login:  "3",
 				Salary: 12.1,
-			})
+			},
+		}
 
-			if err != nil {
-				return err
+		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
+			for _, u := range users {
+				if err := createUser(u); err != nil {
+					return err
+				}
 			}
 
 			return nil
+
 		})
 
 		// id one should be updated
@@ -88,38 +87,31 @@ func TestBulkCreate(t *testing.T) {
 
 	t.Run("should rollback if there is an invalid entry", func(t *testing.T) {
 		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-			err := createUser(&User{
-				ID:     "1",
-				Name:   "1UpdatedAgain",
-				Login:  "1UpdatedAgain",
-				Salary: 12.1,
-			})
-
-			if err != nil {
-				return err
+			users := []*User{
+				{
+					ID:     "1",
+					Name:   "1UpdatedAgain",
+					Login:  "1UpdatedAgain",
+					Salary: 12.1,
+				},
+				{
+					ID:     "3",
+					Name:   "3Updated",
+					Login:  "3Updated",
+					Salary: 12.1,
+				},
+				{
+					ID:     "4",
+					Name:   "4",
+					Login:  "3Updated",
+					Salary: 12.1,
+				},
 			}
 
-			err = createUser(&User{
-				ID:     "3",
-				Name:   "3Updated",
-				Login:  "3Updated",
-				Salary: 12.1,
-			})
-
-			if err != nil {
-				return err
-			}
-
-			// new id but conflicts
-			err = createUser(&User{
-				ID:     "4",
-				Name:   "4",
-				Login:  "3Updated",
-				Salary: 12.1,
-			})
-
-			if err != nil {
-				return err
+			for _, u := range users {
+				if err := createUser(u); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -155,26 +147,25 @@ func TestBulkCreate(t *testing.T) {
 
 	t.Run("should not allow creation with duplicate login", func(t *testing.T) {
 		err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-			err := createUser(&User{
-				ID:     "4",
-				Name:   "4",
-				Login:  "4",
-				Salary: 10,
-			})
-
-			if err != nil {
-				return err
+			users := []*User{
+				{
+					ID:     "4",
+					Name:   "4",
+					Login:  "4",
+					Salary: 10,
+				},
+				{
+					ID:     "5",
+					Name:   "5",
+					Login:  "4",
+					Salary: 10,
+				},
 			}
 
-			err = createUser(&User{
-				ID:     "5",
-				Name:   "5",
-				Login:  "4",
-				Salary: 10,
-			})
-
-			if err != nil {
-				return err
+			for _, u := range users {
+				if err := createUser(u); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -187,52 +178,40 @@ func TestBulkCreate(t *testing.T) {
 		assert.Nil(t, user)
 	})
 }
-
 func TestFind(t *testing.T) {
 	// add a few users
 	err := testEnv.Re.BulkCreate(func(createUser CreateUserFunc) error {
-		err := createUser(&User{
-			ID:     "1",
-			Name:   "1",
-			Login:  "1",
-			Salary: 1,
-		})
-
-		if err != nil {
-			return err
+		users := []*User{
+			{
+				ID:     "1",
+				Name:   "1",
+				Login:  "1",
+				Salary: 1,
+			},
+			{
+				ID:     "2",
+				Name:   "2",
+				Login:  "2",
+				Salary: 2,
+			},
+			{
+				ID:     "3",
+				Name:   "3",
+				Login:  "3",
+				Salary: 3,
+			},
+			{
+				ID:     "4",
+				Name:   "4",
+				Login:  "4",
+				Salary: 4,
+			},
 		}
 
-		err = createUser(&User{
-			ID:     "2",
-			Name:   "2",
-			Login:  "2",
-			Salary: 2,
-		})
-
-		if err != nil {
-			return err
-		}
-
-		err = createUser(&User{
-			ID:     "3",
-			Name:   "3",
-			Login:  "3",
-			Salary: 3,
-		})
-
-		if err != nil {
-			return err
-		}
-
-		err = createUser(&User{
-			ID:     "4",
-			Name:   "4",
-			Login:  "4",
-			Salary: 4,
-		})
-
-		if err != nil {
-			return err
+		for _, u := range users {
+			if err := createUser(u); err != nil {
+				return err
+			}
 		}
 
 		return nil
