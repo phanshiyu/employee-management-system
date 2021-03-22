@@ -14,38 +14,7 @@ const Root = styled.nav`
     display: flex;
   }
 
-  button {
-    border: none;
-    margin: 0;
-    padding: 0;
-    width: auto;
-    overflow: visible;
-
-    background: transparent;
-
-    color: inherit;
-    font: inherit;
-
-    line-height: normal;
-
-    /* Corrects font smoothing for webkit */
-    -webkit-font-smoothing: inherit;
-    -moz-osx-font-smoothing: inherit;
-
-    -webkit-appearance: none;
-
-    outline: none;
-
-    /* Remove excess padding and border in Firefox 4+ */
-    &::-moz-focus-inner {
-      border: 0;
-      padding: 0;
-    }
-
-    &:hover {
-      cursor: pointer;
-    }
-
+  a {
     padding: 8px 16px;
 
     font-size: 1.563rem;

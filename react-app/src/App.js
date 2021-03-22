@@ -21,14 +21,10 @@ function App() {
           </Link>
           <ul>
             <li>
-              <Link to="/">
-                <button type="button">Employees</button>
-              </Link>
+              <Link to="/">Employees</Link>
             </li>
             <li>
-              <Link to="/upload">
-                <button type="button">Upload</button>
-              </Link>
+              <Link to="/upload">Upload</Link>
             </li>
           </ul>
         </Navbar>
