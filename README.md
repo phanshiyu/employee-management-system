@@ -86,3 +86,15 @@ Through out the different stages of queued, processing, completed and error, par
 ### File status repository
 
 This is currently a non persistent in memory solution, but can be potentially stored in a database like Redis. The data stored here is expected to have a high frequency of queries right after the user uploads the file, and does not need to be long lived.
+
+## Assumptions and omissions
+
+1. No rounding issues with salaries being stored as a decimal, and that there will not be any monetary operations on them.
+2. Uploaded files are of reasonable size and free of malicious content.
+3. User operating the platform is hardcoded to user1 for simplicity since there is no authentication mechanisms.
+4. Max salary to be 100k
+5. id and login has a max length of 255.
+6. I ommitted human readable error messages on the frontend.
+7. I ommitted responsive implementation of the frontend and assume a desktop width of 968px.
+8. Users only use chrome (only browser tested on).
+9. Ommitted any caching mechanisms.
