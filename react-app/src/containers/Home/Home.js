@@ -274,7 +274,11 @@ export default function Home() {
           <ResultsContainer>
             <UsersTable
               numCols={5}
-              numRows={limit}
+              numRows={
+                getUsersResponse?.results
+                  ? getUsersResponse?.results.length
+                  : limit
+              }
               showEmptyState={
                 !getUsersResponse?.total && getUsersStatus === 'success'
               }

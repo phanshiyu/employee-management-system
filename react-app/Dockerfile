@@ -1,8 +1,8 @@
 FROM node:latest
 WORKDIR /react-app
 CMD echo "getting latest npm modules" \
-    && yarn \
+    && npm install \
     && echo "installation complete, starting" \
-    && yarn start
+    && npm run start
 
 
