@@ -97,7 +97,7 @@ export async function createUser(user) {
 }
 
 export async function updateUser(user) {
-  return axiosClient.put('/users', user);
+  return axiosClient.patch('/users', user);
 }
 
 export async function deleteUser(userID) {

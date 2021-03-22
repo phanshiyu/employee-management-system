@@ -77,7 +77,7 @@ type FindOptions struct {
 }
 
 type FindResults struct {
-	Items      []User `json:"items"`
+	Items      []User `json:"results"`
 	TotalCount int    `json:"total"`
 	Limit      int    `json:"limit"`
 	Offset     int    `json:"offset"`

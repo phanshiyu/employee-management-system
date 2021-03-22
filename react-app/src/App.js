@@ -21,7 +21,7 @@ function App() {
           </Link>
           <ul>
             <li>
-              <Link to="/">Employees</Link>
+              <Link to="/">Dashboard</Link>
             </li>
             <li>
               <Link to="/upload">Upload</Link>

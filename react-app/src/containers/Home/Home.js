@@ -189,11 +189,11 @@ export default function Home() {
   };
 
   const handleEditClick = (rowIndex) => () => {
-    setUserToEdit(getUsersResponse?.items[rowIndex]);
+    setUserToEdit(getUsersResponse?.results[rowIndex]);
   };
 
   const handleDeleteClick = (rowIndex) => () => {
-    setUserIDtoDelete(getUsersResponse?.items[rowIndex]?.id);
+    setUserIDtoDelete(getUsersResponse?.results[rowIndex]?.id);
   };
 
   function renderItemControls(rowIndex) {
@@ -281,7 +281,7 @@ export default function Home() {
               headerLabels={['ID', 'Login', 'Name', 'Salary']}
               keys={['id', 'login', 'name', 'salary']}
               loading={getUsersStatus !== 'success'}
-              items={getUsersResponse?.items}
+              items={getUsersResponse?.results}
               transformData={{
                 salary: formatSGD,
               }}
