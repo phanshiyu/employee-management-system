@@ -52,3 +52,37 @@ then run:
 ### Notes
 
 It takes a while for the dependencies of the react-app to be installed.
+
+## Design
+
+![Architecture](architecture.png)
+
+Below i will briefly describe the main components of this architecture.
+
+### Request handler
+
+The controller, receives the http request, marshals any query, post or form data, then dedicate the work to the internal services.
+
+Here we construct the http response that is to be sent back to the user, it is here we ensure that responses follow a consistent format, error or not.
+
+### User repository
+
+Primary role of this module is to govern how data flows in and out of the users store through a defined interface; data validations as well as main business logics with regard to users will reside here.
+
+### Parser
+
+Implemented as something like a job queue, with a consumer that constantly consumes and process the CSV files one at a time, then applying the changes via the user repo.
+
+Parser runs on a separate thread.
+
+How it work is as follows:
+
+1.  Request handler receives upload, saves it to a temporary location
+2.  handler will create a job request, specifying the path to the file, and send it to the parser.
+3.  as soon as the parser is free of any job at hand, it will pick up the job, read in the file, then process it.
+
+Through out the different stages of queued, processing, completed and error, parser will inform via a channel for the handler to update the status of the file via the File status repo.
+
+### File status repository
+
+This is currently a non persistent in memory solution, but can be potentially stored in a database like Redis. The data stored here is expected to have a high frequency of queries right after the user uploads the file, and does not need to be long lived.
