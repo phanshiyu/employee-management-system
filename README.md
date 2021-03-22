@@ -2,9 +2,11 @@
 
 Proof of concept implementation of the salary management system, the three main tech used is as follow:
 
-Frontend: React via Create React App
-Backend: Golang with Gin web framework
-Database: Postgres
+| Layer    | Tech                          |
+| -------- | ----------------------------- |
+| frontend | React via Create React App    |
+| backend  | Golang with Gin web framework |
+| backend  | Postgres                      |
 
 ## Running the source code
 
@@ -27,7 +29,6 @@ In the root directory:
 |          | Endpoint                |
 | -------- | ----------------------- |
 | frontend | https://localhost:3000/ |
-| --       | --                      |
 | backend  | https://locahost:5000/  |
 
 ### Running golang unit tests
