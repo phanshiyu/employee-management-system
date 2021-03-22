@@ -23,7 +23,7 @@ type IRepo interface {
 	BulkCreate(fn func(CreateUserFunc) error) error
 	Create(u *User) (*User, error)
 	Update(u *User) (*User, error)
-	DeleteByID(id string) error
+	DeleteByID(id string) (*User, error)
 }
 
 // implementation
@@ -31,7 +31,8 @@ type repo struct {
 	db         *sqlx.DB
 	findByID   *sqlx.Stmt
 	createUser *sqlx.NamedStmt
-	// updateUser *sqlx.NamedStmt
+	updateUser *sqlx.NamedStmt
+	deleteByID *sqlx.Stmt
 }
 
 type CreateUserFunc func(*User) error
@@ -42,7 +43,17 @@ func NewRepo(db *sqlx.DB) (*repo, error) {
 		return nil, err
 	}
 
+	updateUser, err := db.PrepareNamed(`UPDATE users SET login=:login, name=:name, salary=:salary WHERE id=:id RETURNING *`)
+	if err != nil {
+		return nil, err
+	}
+
 	findByID, err := db.Preparex(`SELECT * FROM users WHERE id = $1 LIMIT 1`)
+	if err != nil {
+		panic(err)
+	}
+
+	deleteByID, err := db.Preparex(`DELETE FROM users WHERE id = $1 RETURNING *`)
 	if err != nil {
 		panic(err)
 	}
@@ -51,6 +62,8 @@ func NewRepo(db *sqlx.DB) (*repo, error) {
 		db:         db,
 		createUser: createUser,
 		findByID:   findByID,
+		updateUser: updateUser,
+		deleteByID: deleteByID,
 	}, nil
 }
 
@@ -205,11 +218,25 @@ func (r *repo) BulkCreate(fn func(CreateUserFunc) error) error {
 }
 
 func (r *repo) Update(u *User) (*User, error) {
-	panic("Not implemented")
+	if err := ValidateUserStruct(u); err != nil {
+		return nil, err
+	}
+
+	updatedUser := &User{}
+	if err := r.updateUser.Get(updatedUser, u); err != nil {
+		return nil, normalizeErr(err)
+	}
+
+	return updatedUser, nil
 }
 
-func (r *repo) DeleteByID(id string) error {
-	panic("Not implemented")
+func (r *repo) DeleteByID(id string) (*User, error) {
+	delUser := &User{}
+	if err := r.deleteByID.Get(delUser, id); err != nil {
+		return nil, normalizeErr(err)
+	}
+
+	return delUser, nil
 }
 
 func normalizeErr(err error) error {

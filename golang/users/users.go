@@ -33,7 +33,9 @@ func Initialize(router *gin.RouterGroup, db *sqlx.DB) {
 
 	router.GET("", withErrorHandler(getUsersHandler(repo)))
 	router.GET("/:id", withErrorHandler(getUserHandler(repo)))
+	router.DELETE("/:id", withErrorHandler(deleteUserHandler(repo)))
 	router.POST("", withErrorHandler(createUserHandler(repo)))
+	router.PUT("", withErrorHandler(updateUserHandler(repo)))
 	router.POST("/upload", withErrorHandler(uploadHandler(parseFile, fileStatusRepo)))
 	router.GET("/:id/upload", withErrorHandler(getUserUploads(fileStatusRepo)))
 }

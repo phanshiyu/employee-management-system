@@ -41,8 +41,12 @@ export default function Table({
   loading = false,
   transformData = {},
   tableProps = {},
+  overwriteColRenderIntoCell = {}, // allows user to overwrite rendering for a specific column
 }) {
   const renderIntoCell = (rowIndex, colIndex) => {
+    if (overwriteColRenderIntoCell[colIndex]) {
+      return overwriteColRenderIntoCell[colIndex](rowIndex);
+    }
     const itemsToRender = items || [];
 
     const rowData = itemsToRender[rowIndex] ? itemsToRender[rowIndex] : [];

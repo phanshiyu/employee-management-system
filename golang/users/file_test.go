@@ -35,7 +35,7 @@ func (r *mockUserRepo) Update(u *User) (*User, error) {
 	panic("Not implemented")
 }
 
-func (r *mockUserRepo) DeleteByID(id string) error {
+func (r *mockUserRepo) DeleteByID(id string) (*User, error) {
 	panic("Not implemented")
 }
 

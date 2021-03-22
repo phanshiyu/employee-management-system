@@ -42,12 +42,31 @@ func createUserHandler(repo IRepo) handlerFunc {
 			return newAppError(ErrDataValidationFailure)
 		}
 
-		newUser, err := repo.Create(u)
+		updatedUser, err := repo.Create(u)
 		if err != nil {
 			return newAppError(err)
 		}
 
-		c.JSON(http.StatusAccepted, newUser)
+		c.JSON(http.StatusAccepted, updatedUser)
+		return nil
+	}
+}
+
+func updateUserHandler(repo IRepo) handlerFunc {
+	return func(c *gin.Context) *appError {
+		u := &User{}
+		err := c.BindJSON(u)
+		if err != nil {
+			log.Println(err)
+			return newAppError(ErrDataValidationFailure)
+		}
+
+		updatedUser, err := repo.Update(u)
+		if err != nil {
+			return newAppError(err)
+		}
+
+		c.JSON(http.StatusAccepted, updatedUser)
 		return nil
 	}
 }
@@ -195,6 +214,21 @@ func getUserUploads(fileStatusRepo files.IRepo) handlerFunc {
 	return func(c *gin.Context) *appError {
 		userID := c.Param("id")
 		c.JSON(http.StatusOK, fileStatusRepo.Get(userID))
+		return nil
+	}
+}
+
+func deleteUserHandler(repo IRepo) handlerFunc {
+	return func(c *gin.Context) *appError {
+
+		userID := c.Param("id")
+
+		user, err := repo.DeleteByID(userID)
+		if err == ErrUserDoesNotExist {
+			return newAppError(ErrUserDoesNotExist)
+		}
+
+		c.JSON(http.StatusAccepted, user)
 		return nil
 	}
 }

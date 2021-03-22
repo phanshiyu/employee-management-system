@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { createUser, getUsers } from 'services/userService';
+import {
+  createUser,
+  deleteUser,
+  getUsers,
+  updateUser,
+} from 'services/userService';
 
 // ui components
-import { Button, Card, Divider, Overlay } from '@blueprintjs/core';
+import { Button, Divider, ButtonGroup, Dialog, Card } from '@blueprintjs/core';
 
 import RangeControlGroup from 'components/RangeControlGroup/RangeControlGroup';
 import SortControl from 'components/SortControl/SortControl';
@@ -17,25 +21,20 @@ import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
 import UserForm from 'components/UserForm/UserForm';
 import { showToast } from 'components/Toaster/Toaster';
 import { formatSGD } from 'utils/format';
+
+import Typography from 'components/Typography/Typography';
 import {
   Root,
   LeftContainer,
   SearchContainer,
   ContentContainer,
   ResultsContainer,
+  FormContainer,
+  ControlsContainer,
 } from './Home.styled';
 
-const FormContainer = styled(Card)`
-  max-width: 500px;
-  width: 100%;
-
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
-`;
-
 const maxSalary = 100000;
+
 export default function Home() {
   // get users api
   const {
@@ -55,6 +54,24 @@ export default function Home() {
   } = useAsync(createUser);
   useAsyncErrorHandler(createUserError);
 
+  // update user api
+  const {
+    execute: updateUserExecute,
+    status: updateUserStatus,
+    value: updateUserResponse,
+    error: updateUserError,
+  } = useAsync(updateUser);
+  useAsyncErrorHandler(updateUserError);
+
+  // delete user api
+  const {
+    execute: deleteUserExecute,
+    status: deleteUserStatus,
+    value: deleteUserResponse,
+    error: deleteUserError,
+  } = useAsync(deleteUser);
+  useAsyncErrorHandler(deleteUserError);
+
   const [limit] = useState(30);
   const [offset, setOffset] = useState(0);
   const [page, setPage] = useState(1);
@@ -63,7 +80,11 @@ export default function Home() {
   const [sortKey, setSortKey] = useState('id');
   const [sortDirection, setSortDirection] = useState('+');
   const [sortParam, setSortParam] = useState();
-  const [formOpen, setFormOpen] = useState(false);
+
+  // dialog states
+  const [createFormOpen, setCreateFormOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [userIDtoDelete, setUserIDtoDelete] = useState(null);
 
   useEffect(() => {
     getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
@@ -79,12 +100,36 @@ export default function Home() {
 
   useEffect(() => {
     if (createUserStatus === 'success') {
-      setFormOpen(false);
+      setCreateFormOpen(false);
       showToast(`userId: ${createUserResponse?.id} has been added`, 'success');
       getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createUserStatus, getUsersExecute]);
+
+  useEffect(() => {
+    if (updateUserStatus === 'success') {
+      setUserToEdit(null);
+      showToast(
+        `userId: ${updateUserResponse?.id} has been updated`,
+        'success',
+      );
+      getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateUserStatus, getUsersExecute]);
+
+  useEffect(() => {
+    if (deleteUserStatus === 'success') {
+      setUserIDtoDelete(null);
+      showToast(
+        `userId: ${deleteUserResponse?.id} has been deleted`,
+        'success',
+      );
+      getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteUserStatus, getUsersExecute]);
 
   const handlePrevClick = () => {
     setOffset((val) => val - limit);
@@ -132,6 +177,45 @@ export default function Home() {
     });
   };
 
+  const handleDeleteUser = (userID) => {
+    deleteUserExecute(userID);
+  };
+
+  const handleEditUser = (user) => {
+    updateUserExecute({
+      ...user,
+      salary: parseFloat(user.salary),
+    });
+  };
+
+  const handleEditClick = (rowIndex) => () => {
+    setUserToEdit(getUsersResponse?.items[rowIndex]);
+  };
+
+  const handleDeleteClick = (rowIndex) => () => {
+    setUserIDtoDelete(getUsersResponse?.items[rowIndex]?.id);
+  };
+
+  function renderItemControls(rowIndex) {
+    return (
+      <ControlsContainer>
+        <ButtonGroup>
+          <Button
+            onClick={handleEditClick(rowIndex)}
+            icon="edit"
+            large
+          ></Button>
+          <Button
+            onClick={handleDeleteClick(rowIndex)}
+            icon="trash"
+            large
+            intent="danger"
+          />
+        </ButtonGroup>
+      </ControlsContainer>
+    );
+  }
+
   return (
     <>
       <Root>
@@ -142,7 +226,7 @@ export default function Home() {
               icon="add"
               intent="primary"
               large
-              onClick={() => setFormOpen(true)}
+              onClick={() => setCreateFormOpen(true)}
               text="Create"
               disabled={getUsersStatus === 'pending'}
               loading={getUsersStatus === 'pending'}
@@ -189,7 +273,7 @@ export default function Home() {
           </LeftContainer>
           <ResultsContainer>
             <UsersTable
-              numCols={4}
+              numCols={5}
               numRows={limit}
               showEmptyState={
                 !getUsersResponse?.total && getUsersStatus === 'success'
@@ -200,6 +284,9 @@ export default function Home() {
               items={getUsersResponse?.items}
               transformData={{
                 salary: formatSGD,
+              }}
+              overwriteColRenderIntoCell={{
+                4: renderItemControls,
               }}
               paginationNavigation={
                 <PaginationNavigation
@@ -217,17 +304,19 @@ export default function Home() {
           </ResultsContainer>
         </ContentContainer>
       </Root>
-      <Overlay
-        isOpen={formOpen}
+      <Dialog
+        icon="add"
+        title="Create"
+        isOpen={createFormOpen}
         onClose={() => {
-          setFormOpen(false);
+          setCreateFormOpen(false);
         }}
       >
         <FormContainer>
           <UserForm
             onData={handleCreateUser}
             onCancelClick={() => {
-              setFormOpen(false);
+              setCreateFormOpen(false);
             }}
             submitButtonProps={{
               loading: createUserStatus === 'pending',
@@ -238,7 +327,67 @@ export default function Home() {
             }}
           />
         </FormContainer>
-      </Overlay>
+      </Dialog>
+      <Dialog
+        icon="edit"
+        title="Update"
+        isOpen={userToEdit !== null}
+        onClose={() => {
+          setUserToEdit(null);
+        }}
+      >
+        <FormContainer>
+          <UserForm
+            onData={handleEditUser}
+            defaultValues={userToEdit}
+            onCancelClick={() => {
+              setUserToEdit(null);
+            }}
+            submitButtonProps={{
+              text: 'Update',
+              icon: 'edit',
+              loading: updateUserStatus === 'pending',
+              disabled: updateUserStatus === 'pending',
+            }}
+            cancelButtonProps={{
+              disabled: updateUserStatus === 'pending',
+            }}
+            disabledFields={{
+              id: true,
+            }}
+          />
+        </FormContainer>
+      </Dialog>
+      <Dialog
+        isOpen={userIDtoDelete !== null}
+        icon="info-sign"
+        onClose={() => setUserIDtoDelete(null)}
+        title="Delete confirmation"
+      >
+        <Card>
+          <Typography>
+            Ya about to delete user with ID: <b>{userIDtoDelete}</b>
+          </Typography>
+        </Card>
+        <ButtonGroup fill>
+          <Button
+            intent="danger"
+            large
+            onClick={() => handleDeleteUser(userIDtoDelete)}
+            loading={deleteUserStatus === 'pending'}
+            disabled={deleteUserStatus === 'pending'}
+          >
+            Confirm
+          </Button>
+          <Button
+            onClick={() => setUserIDtoDelete(null)}
+            large
+            disabled={deleteUserStatus === 'pending'}
+          >
+            Cancel
+          </Button>
+        </ButtonGroup>
+      </Dialog>
     </>
   );
 }

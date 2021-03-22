@@ -20,9 +20,14 @@ const getStyle = (variant) => {
 };
 
 const Typography = styled(
-  ({ tag: Tag = 'p', secondaryColor, children, ...props }) => (
-    <Tag {...props}>{children}</Tag>
-  ),
+  ({
+    tag: Tag = 'p',
+    variant = '', // eslint-disable-line  no-unused-vars
+    cursive = false, // eslint-disable-line  no-unused-vars
+    secondaryColor,
+    children,
+    ...props
+  }) => <Tag {...props}>{children}</Tag>,
 )`
   ${({ variant, cursive, secondaryColor }) => [
     getStyle(variant),

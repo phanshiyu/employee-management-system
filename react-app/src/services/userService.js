@@ -95,3 +95,11 @@ export async function uploadUserCSV(file, onProgressEvent) {
 export async function createUser(user) {
   return axiosClient.post('/users', user);
 }
+
+export async function updateUser(user) {
+  return axiosClient.put('/users', user);
+}
+
+export async function deleteUser(userID) {
+  return axiosClient.delete(`/users/${userID}`);
+}

@@ -44,3 +44,14 @@ export const ResultsContainer = styled(Card)`
   align-items: center;
   height: 100%;
 `;
+
+export const FormContainer = styled(Card)`
+  max-width: 500px;
+  width: 100%;
+`;
+
+export const ControlsContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+`;
