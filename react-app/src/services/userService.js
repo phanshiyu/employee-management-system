@@ -13,12 +13,11 @@ const axiosClient = axios.create({
 
 // Add a response interceptor
 axiosClient.interceptors.response.use(
-  function (response) {
+  (response) =>
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
-    return response.data;
-  },
-  function (error) {
+    response.data,
+  (error) => {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     const normalizedError = {};
@@ -34,7 +33,7 @@ axiosClient.interceptors.response.use(
       // anything else
     }
     return Promise.reject(normalizedError);
-  }
+  },
 );
 
 export async function getUsers(
@@ -42,18 +41,18 @@ export async function getUsers(
   offset = 0,
   minSalary,
   maxSalary,
-  sort
+  sort,
 ) {
   const params = {
     limit,
     offset,
   };
 
-  if (!isNaN(minSalary)) {
+  if (!Number.isNaN(minSalary)) {
     params.minSalary = minSalary;
   }
 
-  if (!isNaN(maxSalary)) {
+  if (!Number.isNaN(maxSalary)) {
     params.maxSalary = maxSalary;
   }
 
@@ -81,9 +80,9 @@ export async function uploadUserCSV(file, onProgressEvent) {
       'Content-Type': 'multipart/form-data',
       'Content-Encoding': 'text/csv',
     },
-    onUploadProgress: function (progressEvent) {
+    onUploadProgress(progressEvent) {
       const percentCompleted = Math.round(
-        (progressEvent.loaded * 100) / progressEvent.total
+        (progressEvent.loaded * 100) / progressEvent.total,
       );
 
       if (onProgressEvent) {

@@ -20,16 +20,9 @@ const getStyle = (variant) => {
 };
 
 const Typography = styled(
-  ({
-    tag: Tag = 'p',
-    variant = '',
-    cursive = false,
-    secondaryColor,
-    children,
-    ...props
-  }) => {
-    return <Tag {...props}>{children}</Tag>;
-  }
+  ({ tag: Tag = 'p', secondaryColor, children, ...props }) => (
+    <Tag {...props}>{children}</Tag>
+  ),
 )`
   ${({ variant, cursive, secondaryColor }) => [
     getStyle(variant),

@@ -27,15 +27,14 @@ const SpinnerContainer = styled.div`
   align-items: center;
 `;
 
-const bold = (val) => {
-  return val === 'processing' ? (
+const bold = (val) =>
+  val === 'processing' ? (
     <SpinnerContainer>
       <ProgressBar />
     </SpinnerContainer>
   ) : (
     <b>{val}</b>
   );
-};
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -64,7 +63,7 @@ export const Upload = () => {
 
   useEffect(() => {
     getUserUploadsExecute(userID);
-  }, []);
+  }, [getUserUploadsExecute]);
 
   useEffect(() => {
     const pollInterval = setInterval(() => {
@@ -86,13 +85,13 @@ export const Upload = () => {
       setSelectedFile(null);
       getUserUploadsExecute(userID);
     }
-  }, [uploadStatus]);
+  }, [uploadStatus, getUserUploadsExecute]);
 
   useEffect(() => {
     if (uploadStatus) {
       getUserUploadsExecute(userID);
     }
-  }, [uploadStatus]);
+  }, [uploadStatus, getUserUploadsExecute]);
 
   const [selectedFile, setSelectedFile] = useState();
   const [progress, setProgress] = useState(0);

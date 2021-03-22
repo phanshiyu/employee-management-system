@@ -7,9 +7,13 @@ export default function Dropzone({
   children,
   className,
 }) {
-  const handleOnDrop = useCallback((acceptedFiles) => {
-    onDrop(acceptedFiles);
-  }, []);
+  const handleOnDrop = useCallback(
+    (acceptedFiles) => {
+      onDrop(acceptedFiles);
+    },
+    [onDrop],
+  );
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: handleOnDrop,
     ...dropzoneProps,

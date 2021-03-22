@@ -5,7 +5,7 @@ import { Root } from 'App.styled';
 import Navbar from 'components/Navbar/Navbar';
 import Typography from 'components/Typography/Typography';
 
-//Pages
+// Pages
 import Home from 'containers/Home/Home';
 import Upload from 'containers/Upload/Upload';
 
@@ -14,18 +14,20 @@ function App() {
     <Router>
       <Root>
         <Navbar>
-          <Typography cursive variant="h2">
-            GovTech
-          </Typography>
+          <Link to="/">
+            <Typography cursive variant="h2">
+              GovTech
+            </Typography>
+          </Link>
           <ul>
             <li>
               <Link to="/">
-                <button>Employees</button>
+                <button type="button">Employees</button>
               </Link>
             </li>
             <li>
               <Link to="/upload">
-                <button>Upload</button>
+                <button type="button">Upload</button>
               </Link>
             </li>
           </ul>

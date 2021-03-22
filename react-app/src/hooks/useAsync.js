@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useAsync = (asyncFunction, immediate = false) => {
   const [status, setStatus] = useState('idle');
@@ -16,12 +16,12 @@ export const useAsync = (asyncFunction, immediate = false) => {
           setValue(response);
           setStatus('success');
         })
-        .catch((error) => {
-          setError(error);
+        .catch((err) => {
+          setError(err);
           setStatus('error');
         });
     },
-    [asyncFunction]
+    [asyncFunction],
   );
 
   useEffect(() => {

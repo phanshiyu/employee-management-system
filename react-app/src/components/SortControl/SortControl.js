@@ -18,9 +18,9 @@ export const SortControl = ({
   <SearchParameter label={label}>
     <Root>
       <HTMLSelect value={sortKey} onChange={handleSortKeyChange}>
-        {sortKeys.map((sortKey) => (
-          <option key={sortKey} value={sortKey}>
-            {sortKey}
+        {sortKeys.map((val) => (
+          <option key={val} value={val}>
+            {val}
           </option>
         ))}
       </HTMLSelect>

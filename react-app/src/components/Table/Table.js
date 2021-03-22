@@ -8,12 +8,12 @@ import { HTMLTable } from '@blueprintjs/core';
 const Rows = ({ numRows, numCols, renderIntoCell = () => {}, loading }) => {
   const rendered = [];
 
-  for (let i = 0; i < numRows; ++i) {
+  for (let i = 0; i < numRows; i += 1) {
     rendered.push(
       <tr key={i}>
         {(() => {
           const renderedCells = [];
-          for (let j = 0; j < numCols; ++j) {
+          for (let j = 0; j < numCols; j += 1) {
             renderedCells.push(
               <td key={j}>
                 {loading ? (
@@ -21,12 +21,12 @@ const Rows = ({ numRows, numCols, renderIntoCell = () => {}, loading }) => {
                 ) : (
                   renderIntoCell(i, j)
                 )}
-              </td>
+              </td>,
             );
           }
           return renderedCells;
         })()}
-      </tr>
+      </tr>,
     );
   }
   return rendered;
@@ -43,11 +43,9 @@ export default function Table({
   tableProps = {},
 }) {
   const renderIntoCell = (rowIndex, colIndex) => {
-    if (!items) {
-      items = [];
-    }
+    const itemsToRender = items || [];
 
-    const rowData = items[rowIndex] ? items[rowIndex] : [];
+    const rowData = itemsToRender[rowIndex] ? itemsToRender[rowIndex] : [];
     const cellValue = rowData ? rowData[keys[colIndex]] : '';
 
     const transformFn = transformData[keys[colIndex]];
@@ -64,14 +62,12 @@ export default function Table({
         </tr>
       </thead>
       <tbody>
-        {
-          <Rows
-            numRows={numRows}
-            numCols={numCols}
-            renderIntoCell={renderIntoCell}
-            loading={loading}
-          />
-        }
+        <Rows
+          numRows={numRows}
+          numCols={numCols}
+          renderIntoCell={renderIntoCell}
+          loading={loading}
+        />
       </tbody>
     </HTMLTable>
   );

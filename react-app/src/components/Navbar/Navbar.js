@@ -64,12 +64,10 @@ const ContentContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Navbar = ({ children }) => {
-  return (
-    <Root>
-      <ContentContainer>{children}</ContentContainer>
-    </Root>
-  );
-};
+const Navbar = ({ children }) => (
+  <Root>
+    <ContentContainer>{children}</ContentContainer>
+  </Root>
+);
 
 export default Navbar;

@@ -49,7 +49,7 @@ export const UserForm = ({
         >
           <InputGroup
             large
-            name={'id'}
+            name="id"
             inputRef={register({
               required: true,
               maxLength: 255,

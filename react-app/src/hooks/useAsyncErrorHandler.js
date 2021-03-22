@@ -23,7 +23,7 @@ export const useAsyncErrorHandler = (error) => {
         }
         default: {
           showToast(
-            'Something bad happened, but i dunno what, dont ask me, i rly dunno'
+            'Something bad happened, but i dunno what, dont ask me, i rly dunno',
           );
         }
       }

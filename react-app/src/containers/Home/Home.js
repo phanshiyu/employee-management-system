@@ -11,6 +11,12 @@ import UsersTable, {
   PaginationNavigation,
 } from 'components/UsersTable/UsersTable';
 
+// hooks
+import { useAsync } from 'hooks/useAsync';
+import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
+import UserForm from 'components/UserForm/UserForm';
+import { showToast } from 'components/Toaster/Toaster';
+import { formatSGD } from 'utils/format';
 import {
   Root,
   LeftContainer,
@@ -18,13 +24,6 @@ import {
   ContentContainer,
   ResultsContainer,
 } from './Home.styled';
-
-// hooks
-import { useAsync } from 'hooks/useAsync';
-import { useAsyncErrorHandler } from 'hooks/useAsyncErrorHandler';
-import UserForm from 'components/UserForm/UserForm';
-import { showToast } from 'components/Toaster/Toaster';
-import { formatSGD } from 'utils/format';
 
 const FormContainer = styled(Card)`
   max-width: 500px;
@@ -68,13 +67,13 @@ export default function Home() {
 
   useEffect(() => {
     getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
-  }, [limit, offset, salaryRange, sortParam]);
+  }, [limit, offset, salaryRange, sortParam, getUsersExecute]);
 
   useEffect(() => {
     if (getUsersResponse) {
-      const { limit, offset } = getUsersResponse;
-      const page = Math.floor(offset / limit) + 1;
-      setPage(page);
+      const newPage =
+        Math.floor(getUsersResponse.offset / getUsersResponse.limit) + 1;
+      setPage(newPage);
     }
   }, [getUsersResponse]);
 
@@ -84,7 +83,8 @@ export default function Home() {
       showToast(`userId: ${createUserResponse?.id} has been added`, 'success');
       getUsersExecute(limit, offset, salaryRange[0], salaryRange[1], sortParam);
     }
-  }, [createUserStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createUserStatus, getUsersExecute]);
 
   const handlePrevClick = () => {
     setOffset((val) => val - limit);
@@ -103,20 +103,20 @@ export default function Home() {
   };
 
   const handleMinInputChange = (event) => {
-    let lowerRange = event.target.value;
-    if (lowerRange.length > 0 && isNaN(lowerRange)) {
+    const lowerRange = event.target.value;
+    if (lowerRange.length > 0 && Number.isNaN(lowerRange)) {
       return;
     }
 
-    setRange((prevRange) => [parseInt(lowerRange), prevRange[1]]);
+    setRange((prevRange) => [parseInt(lowerRange, 10), prevRange[1]]);
   };
 
   const handleMaxInputChange = (event) => {
     const upperRange = event.target.value;
-    if (upperRange.length > 0 && isNaN(upperRange)) {
+    if (upperRange.length > 0 && Number.isNaN(upperRange)) {
       return;
     }
-    setRange((prevRange) => [prevRange[0], parseInt(event.target.value)]);
+    setRange((prevRange) => [prevRange[0], parseInt(event.target.value, 10)]);
   };
 
   const handleSearchClick = () => {
@@ -126,8 +126,10 @@ export default function Home() {
   };
 
   const handleCreateUser = (user) => {
-    user.salary = parseFloat(user.salary);
-    createUserExecute(user);
+    createUserExecute({
+      ...user,
+      salary: parseFloat(user.salary),
+    });
   };
 
   return (

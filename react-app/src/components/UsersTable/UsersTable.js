@@ -22,9 +22,9 @@ export default function UserTable({
     <Root>
       {showEmptyState ? (
         <NonIdealState
-          icon={'search'}
+          icon="search"
           title="No results :("
-          description={'Upload a new CSV file or play around with the filters!'}
+          description="Upload a new CSV file or play around with the filters!"
         />
       ) : (
         <div>
@@ -56,7 +56,7 @@ export const PaginationNavigation = ({
     <Button disabled={disabledPrev} onClick={handlePrevClick}>
       Previous
     </Button>
-    {page} / {totalPage ? totalPage : ''}
+    {page} / {totalPage || ''}
     <Button disabled={disabledNext} onClick={handleNextClick}>
       Next
     </Button>
